@@ -1020,7 +1020,10 @@ mod tests {
         )
         .unwrap();
         let loaded = load_project(root.path(), &pending.id).unwrap();
-        assert_eq!(loaded.screen_path, project.screen_path);
+        assert_eq!(
+            dunce::canonicalize(&loaded.screen_path).unwrap(),
+            dunce::canonicalize(&project.screen_path).unwrap()
+        );
         assert!(camera_visible_at(&loaded, 0.5));
         assert!(!camera_visible_at(&loaded, 1.5));
         let stored: serde_json::Value =
