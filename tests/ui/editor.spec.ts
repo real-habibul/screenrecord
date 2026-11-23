@@ -711,7 +711,38 @@ for (const pauseDuringSeek of [false, true]) test(pauseDuringSeek
   await page.addInitScript(() => {
     const w = window as any; const NativeFrame = VideoFrame; w.__NativeFrame = NativeFrame; w.__queuedStaleFrames = []
     const request = HTMLVideoElement.prototype.requestVideoFrameCallback
-    HTMLVideoElement.prototype.requestVideoFrameCallback = function (callback) { if (this === w.__staleScreen) w.__currentSeekCallback = callback; return request.call(this, (now, metadata) => { if (this === w.__staleScreen && w.__holdStaleFrame) w.__queuedStaleFrames.push(() => callback(now, { ...metadata, mediaTime: w.__oldFrame.timestamp / 1e6 })); else callback(now, metadata) }) }
+    const cancel = HTMLVideoElement.prototype.cancelVideoFrameCallback
+    const waiting = new Map<number, VideoFrameRequestCallback>()
+    let presentation: VideoFrameCallbackMetadata | undefined
+    HTMLVideoElement.prototype.requestVideoFrameCallback = function (callback) {
+      if (this !== w.__staleScreen || !w.__holdStaleFrame) return request.call(this, callback)
+      const handle = request.call(this, (now, metadata) => {
+        presentation = metadata
+        w.__queuedStaleFrames.push(() => {
+          if (waiting.delete(handle)) callback(now, { ...metadata, mediaTime: w.__oldFrame.timestamp / 1e6 })
+        })
+      })
+      waiting.set(handle, callback)
+      return handle
+    }
+    HTMLVideoElement.prototype.cancelVideoFrameCallback = function (handle) {
+      if (this === w.__staleScreen) waiting.delete(handle)
+      cancel.call(this, handle)
+    }
+    w.__releaseTargetFrame = (target: number) => {
+      if (!presentation || !waiting.size) return false
+      const frame = new NativeFrame(w.__staleScreen)
+      const mediaTime = frame.timestamp / 1e6
+      frame.close()
+      if (Math.abs(target - mediaTime) > 1 / 30) return false
+      w.__holdStaleFrame = false
+      for (const [handle, callback] of Array.from(waiting)) {
+        if (!waiting.delete(handle)) continue
+        cancel.call(w.__staleScreen, handle)
+        callback(performance.now(), { ...presentation, mediaTime })
+      }
+      return true
+    }
     w.VideoFrame = new Proxy(NativeFrame, { construct(target, args) { return args[0] === w.__staleScreen && w.__holdStaleFrame ? w.__oldFrame.clone() : Reflect.construct(target, args) } })
     const draw = CanvasRenderingContext2D.prototype.drawImage
     CanvasRenderingContext2D.prototype.drawImage = function (...args: any[]) { if (args[0] === w.__staleScreen && w.__holdStaleFrame) args[0] = w.__oldFrame; return (draw as any).apply(this, args) } as typeof draw
@@ -737,7 +768,11 @@ for (const pauseDuringSeek of [false, true]) test(pauseDuringSeek
     const evidence = await page.evaluate(() => { const w = window as any; const canvas = document.querySelector('canvas.preview-canvas') as HTMLCanvasElement; return { target: w.__staleScreen.currentTime, oldPts: w.__oldFrame.timestamp / 1e6, oldDuration: w.__oldFrame.duration / 1e6, pixel: [...canvas.getContext('2d')!.getImageData(canvas.width / 2, canvas.height / 2, 1, 1).data] } })
     if (!pauseDuringSeek) writeEvidence('artifacts/perf-0.5.1/new-seek-stale-frame-evidence.json', evidence)
     await expect(page.getByText('Seeking edited video...', { exact: true })).toBeVisible(); expect(evidence.pixel).toEqual([32, 32, 32, 255])
-    await page.evaluate(() => { const w = window as any; w.__holdStaleFrame = false; const fresh = new w.__NativeFrame(w.__staleScreen); try { w.__currentSeekCallback(performance.now(), { mediaTime: fresh.timestamp / 1e6 }) } finally { fresh.close() } })
+    await screen.evaluate(element => (element as HTMLVideoElement).requestVideoFrameCallback((_now, metadata) => {
+      (window as any).__observedPresentation = metadata.mediaTime
+    }))
+    await expect.poll(() => page.evaluate(() => (window as any).__releaseTargetFrame(2.5))).toBe(true)
+    expect(await page.evaluate(() => (window as any).__observedPresentation)).toBeCloseTo(2.5, 1)
     await expect(page.getByText('Seeking edited video...', { exact: true })).toBeHidden(); await expect.poll(async () => (await screenPixel(page, .5, .5))[2]).toBeGreaterThan(240)
     await expect(screen).toHaveJSProperty('currentTime', 2.5)
     await expect(screen).toHaveJSProperty('paused', true)
