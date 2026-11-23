@@ -1,7 +1,7 @@
 {
-  "buildRecipes": "https://github.com/FFmpeg-Builds/FFmpeg-Builds/tree/autobuild-2026-11-10-12-39",
+  "buildRecipes": "https://github.com/FFmpeg-Builds/FFmpeg-Builds/tree/c9fe5114060e507409f7ee07edfd82efaf25d767",
   "build": "FFmpeg-Builds autobuild-2026-11-10-12-39, n8.1.3-34-ga35157abb9, win64-lgpl-shared",
   "sha256": "3045c2213ed8cbb05edf0d5a631b4490061de3b7567ec145644156e7c98da2c6",
-  "ffmpegSource": "https://github.com/FFmpeg/FFmpeg/tree/a35157abb9",
+  "ffmpegSource": "https://github.com/FFmpeg/FFmpeg/tree/a35157abb96167fd7308edc92b55408d5bb084b0",
   "source": "https://github.com/FFmpeg-Builds/FFmpeg-Builds/releases/download/autobuild-2026-11-10-12-39/ffmpeg-n8.1.3-34-ga35157abb9-win64-lgpl-shared-8.1.zip"
 }

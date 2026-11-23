@@ -3,8 +3,9 @@ $ErrorActionPreference = 'Stop'
 $workspace = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $cache = Join-Path $workspace 'artifacts\media-cache'
 $destination = Join-Path $workspace 'src-tauri\resources'
-$url = 'https://github.com/FFmpeg-Builds/FFmpeg-Builds/releases/download/autobuild-2026-11-10-12-39/ffmpeg-n8.1.3-34-ga35157abb9-win64-lgpl-shared-8.1.zip'
-$expectedHash = '3045c2213ed8cbb05edf0d5a631b4490061de3b7567ec145644156e7c98da2c6'
+$provenance = Get-Content -LiteralPath (Join-Path $destination 'media-provenance.json') -Raw | ConvertFrom-Json
+$url = $provenance.source
+$expectedHash = $provenance.sha256
 New-Item -ItemType Directory -Force -Path $cache, $destination | Out-Null
 if (-not $ArchivePath) {
     $ArchivePath = Join-Path $cache 'ffmpeg-lgpl.zip'
@@ -27,13 +28,6 @@ if (Test-Path -LiteralPath $licenseDirectory) {
     if (Test-Path -LiteralPath $generatedDocs) { Remove-Item -LiteralPath $generatedDocs -Recurse -Force }
     Copy-Item -LiteralPath $licenseDirectory -Destination $generatedDocs -Recurse
 }
-@{
-    source = $url
-    sha256 = $expectedHash
-    build = 'FFmpeg-Builds autobuild-2026-11-10-12-39, n8.1.3-34-ga35157abb9, win64-lgpl-shared'
-    buildRecipes = 'https://github.com/FFmpeg-Builds/FFmpeg-Builds/tree/autobuild-2026-11-10-12-39'
-    ffmpegSource = 'https://github.com/FFmpeg/FFmpeg/tree/a35157abb9'
-} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $destination 'media-provenance.json') -Encoding utf8
 $ffmpegVersion = & (Join-Path $destination 'ffmpeg.exe') -version
 if ($LASTEXITCODE -ne 0) { throw 'Packaged FFmpeg cannot run.' }
 $ffprobeVersion = & (Join-Path $destination 'ffprobe.exe') -version
