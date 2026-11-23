@@ -1,5 +1,9 @@
 # Editor 0.2.0
 
+> Arsip pengembangan. Lihat [unduhan publik](https://github.com/real-habibul/screenrecord/releases) untuk versi yang tersedia saat ini.
+
+> Jalur `artifacts/` dan `target/` merujuk ke hasil lokal dari pengujian saat itu. Panduan untuk menjalankan pemeriksaan saat ini ada di [panduan kontribusi](../../CONTRIBUTING.md#memilih-pengujian).
+
 Implementasi editor untuk proyek rekaman Screenrecord: track musik, subtitle otomatis/manual, dan penyamaran area layar. Pekerjaan dibagi antara agen UI, agen render, agen transkripsi, dan root untuk penyimpanan/IPC/paket. Tidak ada pengujian computer-use atau aktivasi perangkat capture pada pekerjaan ini.
 
 ## Musik
@@ -30,11 +34,11 @@ Format proyek naik menjadi versi 3. Proyek versi 1/2 dibuka tanpa penulisan dan 
 
 Installer masih unsigned. Pembuktian perangkat, clean install/uninstall, serta distribusi lisensi/sumber dari rilis sebelumnya tetap terbuka. Tidak ada klaim siap produksi berdasarkan tes otomatis saja.
 
-Installer final: [Screenrecord_0.2.0_x64-setup.exe](../target/release/bundle/nsis/Screenrecord_0.2.0_x64-setup.exe), 55.477.384 byte (52,91 MiB). SHA-256: `72998fac7827ef94c282135baf52ef0c641ca6878899c91cf950c5df6b290ae2`. Pemeriksaan ekstraksi membuktikan aplikasi x64 sesuai build, 47 resource cocok checksum, source limiter/lisensi tersedia, dan FFmpeg/FFprobe bundel dapat dijalankan. Installer tidak dieksekusi dan aplikasi tidak dibuka. Bukti: [installer-evidence-0.2.0.json](../artifacts/installer-evidence-0.2.0.json).
+Installer final: `target/release/bundle/nsis/Screenrecord_0.2.0_x64-setup.exe`, 55.477.384 byte (52,91 MiB). SHA-256: `72998fac7827ef94c282135baf52ef0c641ca6878899c91cf950c5df6b290ae2`. Pemeriksaan ekstraksi membuktikan aplikasi x64 sesuai build, 47 resource cocok checksum, source limiter/lisensi tersedia, dan FFmpeg/FFprobe bundel dapat dijalankan. Installer tidak dieksekusi dan aplikasi tidak dibuka. Bukti: `artifacts/installer-evidence-0.2.0.json`.
 
 ## Verifikasi otomatis
 
-Rangkaian final lulus 150 tes otomatis: 102 Rust/media, 20 unit frontend, dan 28 browser. Format, Clippy dengan warnings denied, build/TypeScript, dan audit npm produksi lulus; audit npm melaporkan nol kerentanan pada pemeriksaan ini. Log: [verification-0.2.0.log](../artifacts/verification-0.2.0.log).
+Rangkaian final lulus 150 tes otomatis: 102 Rust/media, 20 unit frontend, dan 28 browser. Format, Clippy dengan warnings denied, build/TypeScript, dan audit npm produksi lulus; audit npm melaporkan nol kerentanan pada pemeriksaan ini. Log: `artifacts/verification-0.2.0.log`.
 
 | Cakupan | Bukti |
 | --- | --- |

@@ -33,6 +33,6 @@ Jika Anda memilih **Cloud (Deepgram)**, memasukkan kunci API sendiri, dan meneka
 
 ## Kontribusi dan lisensi
 
-Anda bisa melaporkan bug, mengusulkan fitur, atau mengirim perbaikan kode dan dokumentasi. Panduan kontribusi menjelaskan cara membangun aplikasi dan menjalankan pengujian. [Buka issue](https://github.com/real-habibul/screenrecord/issues) · [Panduan kontribusi](CONTRIBUTING.md)
+Anda bisa melaporkan bug, mengusulkan fitur, atau mengirim perbaikan kode dan dokumentasi. [GitHub Issues](https://github.com/real-habibul/screenrecord/issues) · [Panduan kontribusi](CONTRIBUTING.md) · [Dokumentasi](docs/README.md) · [CI Windows](https://github.com/real-habibul/screenrecord/actions/workflows/windows.yml)
 
 Kode Screenrecord menggunakan lisensi MIT. FFmpeg dan komponen lain yang dibundel memiliki lisensi masing-masing. [Lisensi MIT](LICENSE) · [Komponen pihak ketiga](THIRD_PARTY_NOTICES.md)

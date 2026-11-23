@@ -1,4 +1,4 @@
-# Checklist manual sebelum rilis Screenrecord 0.7.4
+# Checklist pengujian perangkat Screenrecord 0.7.4
 
 ## Hasil yang sudah dikonfirmasi
 
@@ -23,6 +23,6 @@ Gunakan installer kandidat yang akan dibagikan dan proyek uji yang boleh dibuang
 
 Catat jam, jenis sumber, kondisi layar diam/bergerak, opsi perangkat dan teks error. Jika tersedia di folder percobaan, simpan `part-00000/capture-startup-diagnostic.json`, `recording-failure.json` dan `startup-failure.json`. Bandingkan satu percobaan gagal dengan satu yang berhasil pada konfigurasi yang sama. Diagnostik ini dapat diperiksa secara lokal.
 
-## Keputusan distribusi
+## Menilai hasil
 
-Tunda distribusi publik jika rekaman yang sudah tersimpan hilang, MP4 memuat bagian yang telah dipotong atau ditutup mask, atau timeout/selisih audio yang berulang pada konfigurasi yang akan didukung belum dipahami. Setelah uji manual, catat hasil per mesin, tanda tangani paket distribusi, periksa tanda tangannya, dan tuntaskan materi lisensi aplikasi serta komponen yang disertakan. [Status lisensi dan sumber](../THIRD_PARTY_NOTICES.md)
+Catat hasil per mesin, termasuk waktu kejadian jika rekaman hilang, MP4 memuat bagian yang sudah dipotong atau ditutup mask, atau ekspor mengalami timeout atau selisih audio. Buka issue untuk kegagalan yang dapat diulang. Rilis publik 0.7.4 menyediakan checksum, materi lisensi, dan kode sumber. Installernya belum ditandatangani. [GitHub Issues](https://github.com/real-habibul/screenrecord/issues) · [Rilis 0.7.4](https://github.com/real-habibul/screenrecord/releases/tag/v0.7.4)

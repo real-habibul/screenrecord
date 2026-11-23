@@ -1,5 +1,7 @@
 # Perbaikan 0.1.1
 
+> Arsip pengembangan. Lihat [unduhan publik](https://github.com/real-habibul/screenrecord/releases) untuk versi yang tersedia saat ini.
+
 Perubahan ini menangani laporan tombol tutup yang tidak bekerja, noise pada Computer audio, dan label sidebar yang tidak diperlukan.
 
 ## Tutup aplikasi

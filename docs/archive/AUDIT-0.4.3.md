@@ -1,5 +1,9 @@
 # Audit rekaman 0.4.3
 
+> Arsip pengembangan. Lihat [unduhan publik](https://github.com/real-habibul/screenrecord/releases) untuk versi yang tersedia saat ini.
+
+> Jalur `artifacts/` dan `target/` merujuk ke hasil lokal dari pengujian saat itu. Panduan untuk menjalankan pemeriksaan saat ini ada di [panduan kontribusi](../../CONTRIBUTING.md#memilih-pengujian).
+
 Audit ini berangkat dari kegagalan terbaru pada versi 0.4.2 yang terpasang, bukan dari asumsi bahwa tes sintetis membuktikan kompatibilitas perangkat. Hash executable terpasang cocok dengan paket 0.4.2 yang sebelumnya dibangun.
 
 ## Bukti kasus terbaru
@@ -30,19 +34,19 @@ Gate kode final lulus 455 tes berbeda:
 
 | Cakupan | Lulus | Bukti |
 | --- | ---: | --- |
-| Workspace Rust | 240 | [workspace-final.log](../artifacts/audit-0.4.3/workspace-final.log) |
-| Media capture sintetis tambahan | 14 | [media-final.log](../artifacts/audit-0.4.3/media-final.log) |
-| Vendor native tanpa sumber capture | 12 | [vendor-capture-tests.log](../artifacts/audit-0.4.3/vendor-capture-tests.log) |
-| Unit frontend | 74 | [frontend-unit.log](../artifacts/audit-0.4.3/frontend-unit.log) |
-| Browser headless | 115 | [frontend-browser-final.log](../artifacts/audit-0.4.3/frontend-browser-final.log) |
+| Workspace Rust | 240 | `artifacts/audit-0.4.3/workspace-final.log` |
+| Media capture sintetis tambahan | 14 | `artifacts/audit-0.4.3/media-final.log` |
+| Vendor native tanpa sumber capture | 12 | `artifacts/audit-0.4.3/vendor-capture-tests.log` |
+| Unit frontend | 74 | `artifacts/audit-0.4.3/frontend-unit.log` |
+| Browser headless | 115 | `artifacts/audit-0.4.3/frontend-browser-final.log` |
 
 Format Rust, Clippy workspace/all-targets dengan `-D warnings`, TypeScript/build frontend, dan audit npm produksi lulus. Audit npm melaporkan 0 vulnerability. Benchmark, fixture child yang hanya dijalankan oleh tes induknya, dan pengujian model/cloud yang tidak berubah tidak dihitung sebagai tes tambahan.
 
 Regresi frontend mereproduksi tujuh kegagalan pada kode sebelum perbaikan, lalu seluruh suite dijalankan ulang dengan kode dibekukan. Tes native memakai pool WARP tanpa capture item/session, membuktikan referensi event benar-benar dilepas saat rollback dan pesan Stop awal tetap diterima. Tes apartment memeriksa finalizer berjalan sebelum runtime ditutup serta pekerjaan tidak dijalankan/dibuang saat inisialisasi gagal. Regresi encoder memeriksa keluaran file dan stream melalui Finish maupun Drop, termasuk decode seluruh frame dan warna frame terakhir. Tes diagnostik membuktikan arsip, error asli, serta file media tetap dipertahankan. Tidak ada tes di sini yang membuktikan monitor fisik telah berhasil merekam setelah perbaikan.
 
-Build rilis `npm run tauri -- build -- --locked` berhasil. [Installer 0.4.3](../target/release/bundle/nsis/Screenrecord_0.4.3_x64-setup.exe) berukuran 56.153.021 byte (53,55 MiB), dengan SHA-256 `41d1a57cec9a6ed26d45a2abd0063411c25b7d8fc03b823d1667e5ffa84db04d`.
+Build rilis `npm run tauri -- build -- --locked` berhasil. Installer 0.4.3 (`target/release/bundle/nsis/Screenrecord_0.4.3_x64-setup.exe`) berukuran 56.153.021 byte (53,55 MiB), dengan SHA-256 `41d1a57cec9a6ed26d45a2abd0063411c25b7d8fc03b823d1667e5ffa84db04d`.
 
-Inspeksi tanpa menjalankan installer/aplikasi membuktikan executable x64 versi 0.4.3 cocok dengan hasil build setelah penanda bundle NSIS; 47 resource serta notice/lisensi cocok checksum; FFmpeg dan FFprobe hasil ekstraksi berhasil menjalankan `-version`. Paket masih **unsigned**. Hash 19 file sumber terpilih juga cocok dengan snapshot sebelum bundling. Bukti: [build](../artifacts/audit-0.4.3/release-build.log), [inspeksi paket](../artifacts/installer-evidence-0.4.3.json), dan [ringkasan verifikasi](../artifacts/audit-0.4.3/verification-evidence.json).
+Inspeksi tanpa menjalankan installer/aplikasi membuktikan executable x64 versi 0.4.3 cocok dengan hasil build setelah penanda bundle NSIS; 47 resource serta notice/lisensi cocok checksum; FFmpeg dan FFprobe hasil ekstraksi berhasil menjalankan `-version`. Paket masih **unsigned**. Hash 19 file sumber terpilih juga cocok dengan snapshot sebelum bundling. Bukti: build (`artifacts/audit-0.4.3/release-build.log`), inspeksi paket (`artifacts/installer-evidence-0.4.3.json`), dan ringkasan verifikasi (`artifacts/audit-0.4.3/verification-evidence.json`).
 
 ## Uji manual berikutnya
 
@@ -51,4 +55,4 @@ Inspeksi tanpa menjalankan installer/aplikasi membuktikan executable x64 versi 0
 3. Jika startup masih gagal, folder percobaan sekarang menyimpan `part-00000/capture-startup-diagnostic.json`, `recording-failure.json`, dan `startup-failure.json`. Data tersebut membedakan tidak ada event, tersendat sebelum callback, serta kegagalan encoder/GPU. File bersifat lokal dan tidak diunggah otomatis.
 4. Setelah kasus layar saja berhasil, uji webcam/mikrofon, Pause/Resume, Stop dari kontrol mengambang, dan rekam ulang. Periksa bahwa error sesi gagal tetap terlihat dan proyek lama tidak terbuka sebagai hasil rekaman baru.
 
-Rujukan native dan detail patch tersedia pada [catatan vendor](../vendor/windows-capture/SCREENRECORD-PATCH.md). Pengujian perangkat, WebView2 native, clean install/uninstall, dan signing tetap memerlukan bukti terpisah.
+Rujukan native dan detail patch tersedia pada [catatan vendor](../../vendor/windows-capture/SCREENRECORD-PATCH.md). Pengujian perangkat, WebView2 native, clean install/uninstall, dan signing tetap memerlukan bukti terpisah.

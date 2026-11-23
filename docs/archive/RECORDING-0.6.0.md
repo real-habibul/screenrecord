@@ -1,5 +1,9 @@
 # Persiapan rekaman 0.6.0
 
+> Arsip pengembangan. Lihat [unduhan publik](https://github.com/real-habibul/screenrecord/releases) untuk versi yang tersedia saat ini.
+
+> Jalur `artifacts/` dan `target/` merujuk ke hasil lokal dari pengujian saat itu. Panduan untuk menjalankan pemeriksaan saat ini ada di [panduan kontribusi](../../CONTRIBUTING.md#memilih-pengujian).
+
 ## Merekam Roblox atau jendela lain
 
 1. Buka **New recording > Apps**, pilih aplikasi, lalu pilih jendela yang menampilkan game. **Screen** dan **Window** tetap tersedia untuk merekam sumber lain.
@@ -22,19 +26,19 @@ Windows menyaring audio berdasarkan pohon proses. Jika aplikasi memakai layanan 
 
 ## Pengukuran performa
 
-Pada build produksi 0.5.2 dan 0.6.0 final, waktu dari klik **New recording** sampai tombol **Start recording** aktif diukur 24 kali per versi secara bergantian setelah tiga pemanasan. Browser menggunakan daftar perangkat tiruan. Median berubah dari **3,1 ms menjadi 3,2 ms** dan persentil ke-95 dari **4,3 ms menjadi 4,1 ms**. Kedua versi membuka dialog tanpa memulai akuisisi media. [Data per pengulangan](../artifacts/recording-0.6.0/setup-performance-release.json)
+Pada build produksi 0.5.2 dan 0.6.0 final, waktu dari klik **New recording** sampai tombol **Start recording** aktif diukur 24 kali per versi secara bergantian setelah tiga pemanasan. Browser menggunakan daftar perangkat tiruan. Median berubah dari **3,1 ms menjadi 3,2 ms** dan persentil ke-95 dari **4,3 ms menjadi 4,1 ms**. Kedua versi membuka dialog tanpa memulai akuisisi media. Data per pengulangan (`artifacts/recording-0.6.0/setup-performance-release.json`)
 
-Uji editor memakai klip sintetis, empat skenario, dan tiga pengulangan per versi. Di preview 1080p60 selama enam detik, median waktu kerja thread utama adalah **1.113,6 ms** pada 0.5.2 dan **977,9 ms** pada 0.6.0. Persentil ke-95 waktu komposisi per frame bergerak dari **1,2 ms ke 1,1 ms**. Browser melaporkan **1 dari 1.120** frame terlewat pada 0.5.2 dan **3 dari 1.119** pada 0.6.0. Pada 30 fps keduanya mencatat nol frame terlewat. Persentil ke-95 saat menggeser playhead bergerak dari **64,3 ms ke 62,1 ms**. [Pengukuran editor dan hasil setiap pengulangan](../artifacts/perf-0.5.1/editor-final-0.6.0.json)
+Uji editor memakai klip sintetis, empat skenario, dan tiga pengulangan per versi. Di preview 1080p60 selama enam detik, median waktu kerja thread utama adalah **1.113,6 ms** pada 0.5.2 dan **977,9 ms** pada 0.6.0. Persentil ke-95 waktu komposisi per frame bergerak dari **1,2 ms ke 1,1 ms**. Browser melaporkan **1 dari 1.120** frame terlewat pada 0.5.2 dan **3 dari 1.119** pada 0.6.0. Pada 30 fps keduanya mencatat nol frame terlewat. Persentil ke-95 saat menggeser playhead bergerak dari **64,3 ms ke 62,1 ms**. Pengukuran editor dan hasil setiap pengulangan (`artifacts/perf-0.5.1/editor-final-0.6.0.json`)
 
-Pada uji salinan piksel sintetis, 60 penyalinan dari gambar 1920 × 1080 dengan D3D11 WARP memerlukan median 135,9 ms untuk seluruh gambar dan 22,0 ms untuk area 640 × 360. Setiap batch menyertakan pembacaan kembali hasil agar pekerjaan benar-benar selesai. Pengujian ini mengukur biaya penyalinan pada perangkat lunak. FPS permainan, penggunaan CPU/GPU saat merekam, dan waktu akuisisi sumber Windows masih memerlukan uji perangkat. [Pengukuran area dan thumbnail](../artifacts/recording-0.6.0/region-evidence.json)
+Pada uji salinan piksel sintetis, 60 penyalinan dari gambar 1920 × 1080 dengan D3D11 WARP memerlukan median 135,9 ms untuk seluruh gambar dan 22,0 ms untuk area 640 × 360. Setiap batch menyertakan pembacaan kembali hasil agar pekerjaan benar-benar selesai. Pengujian ini mengukur biaya penyalinan pada perangkat lunak. FPS permainan, penggunaan CPU/GPU saat merekam, dan waktu akuisisi sumber Windows masih memerlukan uji perangkat. Pengukuran area dan thumbnail (`artifacts/recording-0.6.0/region-evidence.json`)
 
 ## Verifikasi otomatis
 
-Sebanyak **703 tes otomatis lulus**. Cakupannya mencakup 255 tes aplikasi, core, capture, dan transkripsi, 86 tes render dan integrasi ekspor, satu tes pembaca proyek contoh, 17 tes media tambahan, 13 tes komponen Windows, 159 unit test frontend, dan 172 skenario browser. Tes browser memakai sumber dan media sintetis. [Rincian verifikasi](../artifacts/recording-0.6.0/verification.json)
+Sebanyak **703 tes otomatis lulus**. Cakupannya mencakup 255 tes aplikasi, core, capture, dan transkripsi, 86 tes render dan integrasi ekspor, satu tes pembaca proyek contoh, 17 tes media tambahan, 13 tes komponen Windows, 159 unit test frontend, dan 172 skenario browser. Tes browser memakai sumber dan media sintetis. Rincian verifikasi (`artifacts/recording-0.6.0/verification.json`)
 
-Satu ekspor kamera berbasis AMD AMF mencapai batas 180 detik pada percobaan paralel. Kasus yang sama lulus secara terpisah, seluruh rangkaian render lulus berurutan, dan pengulangan khusus AMF menghasilkan 54 frame yang seluruhnya berhasil didekode. Penyebab timeout awal belum terkonfirmasi. [Bukti pengulangan AMF](../artifacts/recording-0.6.0/render-verification.json)
+Satu ekspor kamera berbasis AMD AMF mencapai batas 180 detik pada percobaan paralel. Kasus yang sama lulus secara terpisah, seluruh rangkaian render lulus berurutan, dan pengulangan khusus AMF menghasilkan 54 frame yang seluruhnya berhasil didekode. Penyebab timeout awal belum terkonfirmasi. Bukti pengulangan AMF (`artifacts/recording-0.6.0/render-verification.json`)
 
-Installer NSIS Windows x64 berukuran **56.293.533 byte**, bertambah 73.874 byte dari 0.5.2. Pemeriksaan setelah ekstraksi mencocokkan versi 0.6.0, executable rilis, tujuh aset frontend, dan 47 berkas runtime beserta lisensi yang diperiksa oleh skrip. FFmpeg dan FFprobe hasil ekstraksi dapat dijalankan. Installer belum ditandatangani secara digital. SHA-256 tersimpan di samping installer. [Bukti pemeriksaan paket](../artifacts/recording-0.6.0/installer.json)
+Installer NSIS Windows x64 berukuran **56.293.533 byte**, bertambah 73.874 byte dari 0.5.2. Pemeriksaan setelah ekstraksi mencocokkan versi 0.6.0, executable rilis, tujuh aset frontend, dan 47 berkas runtime beserta lisensi yang diperiksa oleh skrip. FFmpeg dan FFprobe hasil ekstraksi dapat dijalankan. Installer belum ditandatangani secara digital. SHA-256 tersimpan di samping installer. Bukti pemeriksaan paket (`artifacts/recording-0.6.0/installer.json`)
 
 ## Uji perangkat Windows 11
 

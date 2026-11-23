@@ -49,4 +49,17 @@ Tes otomatis menjalankan editor di browser headless dan memproses media sintetis
 
 Buat branch di fork Anda, lalu buka pull request ke repositori Screenrecord. Jelaskan masalah yang ditangani, perubahan perilaku, dan tes yang telah dijalankan. Untuk perubahan visual, tangkapan layar sebelum dan sesudah akan membantu peninjauan. [Repositori Screenrecord](https://github.com/real-habibul/screenrecord)
 
-Antarmuka Vue berada di `src`, integrasi desktop di `src-tauri`, dan pustaka Rust di `crates`. Perubahan pada format proyek atau pesan antara frontend dan backend perlu mengikuti kontrak data yang sama. [Kontrak data](CONTRACT.md)
+## Peta kode
+
+| Jika Anda mengubah | Mulai dari |
+| --- | --- |
+| Perekaman layar, kamera, atau audio Windows | [crates/capture](crates/capture) |
+| Format proyek, validasi, dan penyimpanan | [crates/core](crates/core) |
+| Ekspor MP4, filter video, dan audio hasil ekspor | [crates/render](crates/render) |
+| Transkripsi lokal dan cloud | [crates/transcribe](crates/transcribe) |
+| Perintah Tauri dan integrasi perekaman | [src-tauri/src/app.rs](src-tauri/src/app.rs) |
+| Preview dan interaksi di kanvas | [src/components/Preview.vue](src/components/Preview.vue) |
+| Dialog, preset, dan status ekspor video | [src/App.vue](src/App.vue) |
+| Tes editor di browser | [tests/ui](tests/ui) |
+
+Perubahan pada format proyek atau pesan antara frontend dan backend perlu mengikuti [kontrak proyek dan IPC](docs/project-contract.md). Daftar panduan dan laporan versi tersedia di [indeks dokumentasi](docs/README.md).

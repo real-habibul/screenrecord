@@ -6,7 +6,7 @@ Pengujian lokal pada Windows x64, 23 November 2026. Sumber gambar dan suara sint
 
 Perubahan ukuran monitor atau jendela antara pembuatan frame pool dan pemasangan callback dapat membuat ukuran yang dicatat berbeda dari buffer yang sudah dialokasikan. Capture sekarang menggunakan ukuran alokasi aktual, mengabaikan frame sementara berdimensi nol dan melanjutkan saat tersedia frame yang dapat digambar. Jika worker perangkat yang dibutuhkan sudah keluar saat startup, penyebabnya dikembalikan. Jika konsumen encoder masih hidup tetapi antrean penuh dan tidak dikosongkan selama 10 detik, pengiriman berakhir dengan error sehingga aplikasi bisa mulai menangani kegagalan.
 
-Tiga regresi sintetis semula gagal lalu lulus setelah perbaikan. Tes encoder Windows menggunakan frame sintetis, dengan keempat kombinasi keluaran file/stream dan finalisasi eksplisit/pelepasan objek. Decoder membaca 12 frame di setiap kasus. Warna awal dan akhir diperiksa. Dua percobaan fisik terdahulu pada monitor 1920 × 1080, 30 fps, dengan audio komputer belum memiliki diagnostik per tahap. Penyebabnya belum bisa dipastikan dari catatan lama. [Riwayat timeout](AUDIT-0.4.3.md)
+Tiga regresi sintetis semula gagal lalu lulus setelah perbaikan. Tes encoder Windows menggunakan frame sintetis, dengan keempat kombinasi keluaran file/stream dan finalisasi eksplisit/pelepasan objek. Decoder membaca 12 frame di setiap kasus. Warna awal dan akhir diperiksa. Dua percobaan fisik terdahulu pada monitor 1920 × 1080, 30 fps, dengan audio komputer belum memiliki diagnostik per tahap. Penyebabnya belum bisa dipastikan dari catatan lama. [Riwayat timeout](archive/AUDIT-0.4.3.md)
 
 ## Durasi dan sinkronisasi
 

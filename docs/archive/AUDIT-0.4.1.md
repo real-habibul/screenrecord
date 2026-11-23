@@ -1,5 +1,9 @@
 # Audit 0.4.1
 
+> Arsip pengembangan. Lihat [unduhan publik](https://github.com/real-habibul/screenrecord/releases) untuk versi yang tersedia saat ini.
+
+> Jalur `artifacts/` dan `target/` merujuk ke hasil lokal dari pengujian saat itu. Panduan untuk menjalankan pemeriksaan saat ini ada di [panduan kontribusi](../../CONTRIBUTING.md#memilih-pengujian).
+
 Audit ini menindaklanjuti screenshot kegagalan mulai rekam pada 0.4.0. Tiga agen menangani capture, editor, dan render; root menangani lifecycle Tauri, recovery, integrasi dan paket. Pengujian tidak memakai computer-use atau perekaman perangkat. Folder proyek pengguna hanya dibaca untuk metadata diagnosis, tidak diubah oleh alat pengembangan.
 
 ## Temuan dan perbaikan
@@ -18,26 +22,26 @@ Snapshot kode final lulus 425 tes otomatis berbeda:
 
 | Cakupan | Lulus | Bukti |
 | --- | ---: | --- |
-| Workspace Rust, termasuk model, lifecycle Tauri, capture, render dan transkripsi | 227 | [workspace-tests-final.log](../artifacts/audit-0.4.1/workspace-tests-final.log) |
-| Kontrak media capture tambahan | 12 | [capture-media-final.log](../artifacts/audit-0.4.1/capture-media-final.log) |
-| Vendor capture/encoder | 7 | [vendor-capture-tests.log](../artifacts/audit-0.4.1/vendor-capture-tests.log) |
-| Contoh CLI render dan format proyek legacy | 1 | [render-example.log](../artifacts/audit-0.4.1/render-example.log) |
-| Unit frontend | 74 | [recording-041-unit.log](../artifacts/ui/recording-041-unit.log) |
-| Browser headless, termasuk fixture media | 104 | [recording-041-browser-final.log](../artifacts/ui/recording-041-browser-final.log) |
+| Workspace Rust, termasuk model, lifecycle Tauri, capture, render dan transkripsi | 227 | `artifacts/audit-0.4.1/workspace-tests-final.log` |
+| Kontrak media capture tambahan | 12 | `artifacts/audit-0.4.1/capture-media-final.log` |
+| Vendor capture/encoder | 7 | `artifacts/audit-0.4.1/vendor-capture-tests.log` |
+| Contoh CLI render dan format proyek legacy | 1 | `artifacts/audit-0.4.1/render-example.log` |
+| Unit frontend | 74 | `artifacts/ui/recording-041-unit.log` |
+| Browser headless, termasuk fixture media | 104 | `artifacts/ui/recording-041-browser-final.log` |
 
 Pemeriksaan format Rust, Clippy seluruh workspace/all-targets dengan `-D warnings`, TypeScript, build frontend, dan audit dependensi npm produksi lulus; audit npm melaporkan 0 vulnerability. Suite workspace memuat tes yang sengaja diabaikan: benchmark, fixture child yang dijalankan oleh tes induknya, dan tes media/model yang membutuhkan pemanggilan eksplisit. Dua belas kontrak media capture dijalankan terpisah. Tes model Whisper nyata dan tiga tes media transkripsi dari 0.4.0 tidak diulang karena jalurnya tidak berubah; hasil lama bukan klaim pengujian ulang versi ini.
 
-Tes native memakai frame BGRA sintetis dan child process dengan deadline 30 detik. Finish dan Drop masing-masing menghasilkan 12 frame; semua frame berhasil didekode dan warna frame akhir cocok. Tes WARP membuat pool free-threaded tanpa capture item/session, serta memeriksa salinan tekstur setelah sumbernya ditimpa. Bukti ini memeriksa kontrak Windows dan encoder, bukan keberhasilan akuisisi monitor fisik. Lihat [log native encoder](../artifacts/audit-0.4.1/native-encoder-drain.log) dan [rincian patch vendor](../vendor/windows-capture/SCREENRECORD-PATCH.md).
+Tes native memakai frame BGRA sintetis dan child process dengan deadline 30 detik. Finish dan Drop masing-masing menghasilkan 12 frame; semua frame berhasil didekode dan warna frame akhir cocok. Tes WARP membuat pool free-threaded tanpa capture item/session, serta memeriksa salinan tekstur setelah sumbernya ditimpa. Bukti ini memeriksa kontrak Windows dan encoder, bukan keberhasilan akuisisi monitor fisik. Lihat log native encoder (`artifacts/audit-0.4.1/native-encoder-drain.log`) dan [rincian patch vendor](../../vendor/windows-capture/SCREENRECORD-PATCH.md).
 
-Screenshot browser diperiksa pada tema terang/gelap. Tes geometri, hit-testing, dan keyboard mencakup 900x480, 900x640, serta 1280x720, termasuk pesan error panjang. Kontras terukur untuk teks muted 8,62/6,54; teks error 7,59/6,93; tombol utama 9,06; focus 10,31/6,04. Contoh: [dialog gelap](../artifacts/ui/record-dialog-041-dark-900x640.png) dan [error tema terang](../artifacts/ui/record-dialog-041-failure-light-900x640.png). Uji WebView2 native tetap manual.
+Screenshot browser diperiksa pada tema terang/gelap. Tes geometri, hit-testing, dan keyboard mencakup 900x480, 900x640, serta 1280x720, termasuk pesan error panjang. Kontras terukur untuk teks muted 8,62/6,54; teks error 7,59/6,93; tombol utama 9,06; focus 10,31/6,04. Contoh: dialog gelap (`artifacts/ui/record-dialog-041-dark-900x640.png`) dan error tema terang (`artifacts/ui/record-dialog-041-failure-light-900x640.png`). Uji WebView2 native tetap manual.
 
 Tes menggunakan direktori sementara dan media sintetis. Tidak ada panggilan transkripsi cloud berbayar atau pengaktifan perangkat capture. Tiga agen menjalankan audit silang: marker recovery, allowlist perangkat, kontrak audio ekspor, serta kepemilikan worker/antrean encoder tidak menyisakan blocker yang terkonfirmasi dalam jalur yang diperiksa.
 
 ## Paket
 
-Installer Windows x64 unsigned: [Screenrecord_0.4.1_x64-setup.exe](../target/release/bundle/nsis/Screenrecord_0.4.1_x64-setup.exe), 56.140.203 byte (53,54 MiB). SHA-256: `5155593f9f31682efa9bcde1c0cb682bf8788286f5d6b8b3c9aadcf6727730bf`.
+Installer Windows x64 unsigned: `target/release/bundle/nsis/Screenrecord_0.4.1_x64-setup.exe`, 56.140.203 byte (53,54 MiB). SHA-256: `5155593f9f31682efa9bcde1c0cb682bf8788286f5d6b8b3c9aadcf6727730bf`.
 
-Build release berhasil. Inspeksi tanpa menjalankan installer membuktikan executable x64 cocok dengan hasil release setelah marker NSIS Tauri, 47 resource cocok checksum, dan notice/lisensi yang diperiksa cocok dengan sumber. FFmpeg/FFprobe hasil ekstraksi berhasil menjalankan `-version`. Aplikasi dan installer tidak diluncurkan/dipasang. Bukti: [installer-evidence-0.4.1.json](../artifacts/installer-evidence-0.4.1.json), [log build](../artifacts/audit-0.4.1/release-build.log), dan [checksum](../target/release/bundle/nsis/Screenrecord_0.4.1_x64-setup.exe.sha256).
+Build release berhasil. Inspeksi tanpa menjalankan installer membuktikan executable x64 cocok dengan hasil release setelah marker NSIS Tauri, 47 resource cocok checksum, dan notice/lisensi yang diperiksa cocok dengan sumber. FFmpeg/FFprobe hasil ekstraksi berhasil menjalankan `-version`. Aplikasi dan installer tidak diluncurkan/dipasang. Bukti: `artifacts/installer-evidence-0.4.1.json`, log build (`artifacts/audit-0.4.1/release-build.log`), dan checksum (`target/release/bundle/nsis/Screenrecord_0.4.1_x64-setup.exe.sha256`).
 
 ## Uji manual yang masih diperlukan
 

@@ -1,5 +1,9 @@
 # Audit tampilan dan alur 0.3.0
 
+> Arsip pengembangan. Lihat [unduhan publik](https://github.com/real-habibul/screenrecord/releases) untuk versi yang tersedia saat ini.
+
+> Jalur `artifacts/` dan `target/` merujuk ke hasil lokal dari pengujian saat itu. Panduan untuk menjalankan pemeriksaan saat ini ada di [panduan kontribusi](../../CONTRIBUTING.md#memilih-pengujian).
+
 11 November 2026. Audit mengacu pada screenshot pengguna, source, metadata proyek yang sudah ada, dokumentasi produk pembanding, serta pengujian otomatis. Aplikasi Windows dan perangkat fisik tidak dikendalikan melalui computer-use. Ini bukan bukti pengujian kamera/driver native.
 
 ## Temuan dan tindakan
@@ -50,9 +54,9 @@ Preview preflight tidak membuat kamera muncul dalam proyek yang sudah direkam ta
 
 ## Verifikasi dan batas
 
-Installer [Screenrecord_0.3.0_x64-setup.exe](../target/release/bundle/nsis/Screenrecord_0.3.0_x64-setup.exe) selesai: 55.517.401 byte (52,95 MiB), unsigned. SHA-256: `5055b14ba5c3b0a58a3670ca3dc6cc1de5e00dbb6e64c70d1a0325059efc6e04`. Inspeksi ekstraksi memverifikasi EXE x64 terhadap build final, checksum 47 resource, source/lisensi limiter, dan eksekusi FFmpeg/FFprobe bundel. Installer dan aplikasi tidak dijalankan. Bukti: [installer-evidence-0.3.0.json](../artifacts/installer-evidence-0.3.0.json).
+Installer `target/release/bundle/nsis/Screenrecord_0.3.0_x64-setup.exe` selesai: 55.517.401 byte (52,95 MiB), unsigned. SHA-256: `5055b14ba5c3b0a58a3670ca3dc6cc1de5e00dbb6e64c70d1a0325059efc6e04`. Inspeksi ekstraksi memverifikasi EXE x64 terhadap build final, checksum 47 resource, source/lisensi limiter, dan eksekusi FFmpeg/FFprobe bundel. Installer dan aplikasi tidak dijalankan. Bukti: `artifacts/installer-evidence-0.3.0.json`.
 
-Verifikasi gabungan lulus 172 tes otomatis: 106 Rust/media, 27 unit frontend dan 39 browser headless. Format, Clippy dengan warnings denied, build/TypeScript dan audit npm produksi juga lulus; audit npm melaporkan nol kerentanan pada pemeriksaan ini. Log: [verification-0.3.0.log](../artifacts/verification-0.3.0.log).
+Verifikasi gabungan lulus 172 tes otomatis: 106 Rust/media, 27 unit frontend dan 39 browser headless. Format, Clippy dengan warnings denied, build/TypeScript dan audit npm produksi juga lulus; audit npm melaporkan nol kerentanan pada pemeriksaan ini. Log: `artifacts/verification-0.3.0.log`.
 
 | Area | Bukti |
 | --- | --- |
@@ -63,11 +67,11 @@ Verifikasi gabungan lulus 172 tes otomatis: 106 Rust/media, 27 unit frontend dan
 | Preview detail | Lima tes geometri dan tiga browser mencakup DPI 2x, Fit/100%/200%, buffer maksimal 4096 sisi panjang/16 juta piksel, pan keyboard, koordinat dan piksel mask setelah crop/zoom/scroll. |
 | Editor dan media | Regresi source/zoom drag+trim, undo, autosave tertunda, webcam EOF/offset, limiter/music seek, subtitle job ID, SRT, ekspor/cancel dan close/save tetap lulus. Media rekaman yang sudah ada didekode melalui loopback; sumbernya tidak diubah. |
 
-Metrik: [layout-contrast.json](../artifacts/ui/layout-contrast.json). Screenshot memakai media uji sintetis dan fixture IPC, bukan bukti aplikasi native atau kamera fisik:
+Metrik: `artifacts/ui/layout-contrast.json`. Screenshot memakai media uji sintetis dan fixture IPC, bukan bukti aplikasi native atau kamera fisik:
 
-- [Editor gelap 1920 x 1080](../artifacts/ui/editor-1920x1080-dark.png)
-- [Editor terang 1920 x 1080](../artifacts/ui/editor-1920x1080-light.png)
-- [Persiapan rekaman dengan frame kamera simulasi](../artifacts/ui/record-setup-1600-dark.png)
+- Editor gelap 1920 x 1080 (`artifacts/ui/editor-1920x1080-dark.png`)
+- Editor terang 1920 x 1080 (`artifacts/ui/editor-1920x1080-light.png`)
+- Persiapan rekaman dengan frame kamera simulasi (`artifacts/ui/record-setup-1600-dark.png`)
 
 Tes otomatis memakai fake IPC, media sintetis dan subprocess milik tes. Kamera fisik tidak diaktifkan. Tidak ada computer-use, panggilan cloud berbayar, instalasi, atau peluncuran aplikasi Windows pada pekerjaan ini. Uji manual pengguna tetap meliputi izin Windows, perangkat sedang digunakan aplikasi lain, pindah kamera, preview-stop-start recording, penutupan modal, kualitas audio/webcam, DPI, dan ekspor dari UI native.
 

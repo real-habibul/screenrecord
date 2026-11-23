@@ -1,0 +1,30 @@
+name: Laporan bug
+description: Laporkan masalah saat memasang, merekam, mengedit, atau mengekspor.
+labels: [bug]
+body:
+  - type: input
+    id: versions
+    attributes:
+      label: Versi Screenrecord dan Windows
+      placeholder: "Contoh: Screenrecord 0.7.4, Windows 11 build 26100"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Langkah untuk mengulang masalah
+      description: Cantumkan sumber rekaman, perangkat aktif, atau posisi di timeline bila relevan.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Hasil yang muncul dan hasil yang diharapkan
+      description: Salin pesan error jika ada. Untuk masalah editor, sebutkan apakah gejalanya juga terlihat pada MP4.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Bukti tambahan
+      description: Jika perlu, lampirkan contoh sintetis, tangkapan layar, atau potongan log yang sudah diperiksa. Hapus informasi pribadi dan kunci API sebelum mengunggah.

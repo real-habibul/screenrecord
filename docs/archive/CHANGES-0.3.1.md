@@ -1,5 +1,9 @@
 # Perubahan 0.3.1
 
+> Arsip pengembangan. Lihat [unduhan publik](https://github.com/real-habibul/screenrecord/releases) untuk versi yang tersedia saat ini.
+
+> Jalur `artifacts/` dan `target/` merujuk ke hasil lokal dari pengujian saat itu. Panduan untuk menjalankan pemeriksaan saat ini ada di [panduan kontribusi](../../CONTRIBUTING.md#memilih-pengujian).
+
 ## Delete proyek
 
 Klik kanan proyek atau gunakan tombol Project actions pada barisnya, lalu pilih Delete project. Keyboard menyediakan Shift+F10/ContextMenu dan Escape. Dialog konfirmasi menampilkan nama proyek, dengan Cancel sebagai fokus awal.
@@ -20,14 +24,14 @@ Perubahan diterapkan ke input angka pada panel properti. Satu gesture menjadi sa
 
 ## Verifikasi
 
-Installer final [Screenrecord_0.3.1_x64-setup.exe](../target/release/bundle/nsis/Screenrecord_0.3.1_x64-setup.exe), 55.551.642 byte (52,98 MiB), unsigned. SHA-256: `8a08db1de4f5fdceb4e30bfad8cbfe715dd8da5133b074083655c3bd6a6914b6`. Inspeksi ekstraksi memverifikasi EXE x64, checksum 47 resource, source/lisensi limiter, dan runtime FFmpeg/FFprobe. Installer tidak dijalankan. Bukti: [installer-evidence-0.3.1.json](../artifacts/installer-evidence-0.3.1.json).
+Installer final `target/release/bundle/nsis/Screenrecord_0.3.1_x64-setup.exe`, 55.551.642 byte (52,98 MiB), unsigned. SHA-256: `8a08db1de4f5fdceb4e30bfad8cbfe715dd8da5133b074083655c3bd6a6914b6`. Inspeksi ekstraksi memverifikasi EXE x64, checksum 47 resource, source/lisensi limiter, dan runtime FFmpeg/FFprobe. Installer tidak dijalankan. Bukti: `artifacts/installer-evidence-0.3.1.json`.
 
 190 tes otomatis berbeda lulus: 109 Rust/media, 32 unit frontend dan 49 browser. Format, Clippy dengan warnings denied, build/TypeScript dan audit npm produksi lulus; audit npm melaporkan nol kerentanan pada pemeriksaan ini.
 
-Log [verification-0.3.1.log](../artifacts/verification-0.3.1.log) mencatat rangkaian awal yang meluluskan seluruh tes tetapi gagal build saat pemeriksaan recycle tambahan baru dimasukkan. Dependency macro diperbaiki, kemudian callback recycle, sembilan tes integrasi aplikasi, format/Clippy dan build final diverifikasi kembali di [finalization-0.3.1.log](../artifacts/finalization-0.3.1.log). Hitungan 190 adalah tes berbeda, bukan penjumlahan tes yang diulang.
+Log `artifacts/verification-0.3.1.log` mencatat rangkaian awal yang meluluskan seluruh tes tetapi gagal build saat pemeriksaan recycle tambahan baru dimasukkan. Dependency macro diperbaiki, kemudian callback recycle, sembilan tes integrasi aplikasi, format/Clippy dan build final diverifikasi kembali di `artifacts/finalization-0.3.1.log`. Hitungan 190 adalah tes berbeda, bukan penjumlahan tes yang diulang.
 
 Pengujian mencakup konfirmasi/cancel, edit tertunda, decoder release/unmount sebelum delete, error/retry, proyek terakhir, request lama, Refresh sesudah restore, serta penolakan path/junction dan hasil permanent-delete. Manipulasi canvas diuji pada DPI 2x untuk pergerakan/resize/batas, crop/zoom/scroll, keyboard, Escape dan pembatalan saat busy, properti numerik dan satu langkah Undo.
 
 Tes penghapusan memakai folder fixture milik tes dan pemindah pengganti. Tidak ada proyek pengguna atau isi Recycle Bin pengguna yang diubah. Native Recycle Bin, interaksi Windows, file yang dibuka aplikasi lain, dan drive tanpa recycle tetap perlu diuji manual. Tidak menggunakan computer-use atau kamera fisik.
 
-Bukti visual dengan media sintetis: [menu](../artifacts/ui/project-menu-dark.png), [konfirmasi](../artifacts/ui/project-delete-confirmation.png), [pegangan kamera](../artifacts/ui/preview-camera-handles.png).
+Bukti visual dengan media sintetis: menu (`artifacts/ui/project-menu-dark.png`), konfirmasi (`artifacts/ui/project-delete-confirmation.png`), pegangan kamera (`artifacts/ui/preview-camera-handles.png`).

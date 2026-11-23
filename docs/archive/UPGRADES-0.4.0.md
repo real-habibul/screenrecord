@@ -1,5 +1,7 @@
 # Upgrade editor 0.4.0
 
+> Arsip pengembangan. Lihat [unduhan publik](https://github.com/real-habibul/screenrecord/releases) untuk versi yang tersedia saat ini.
+
 Pekerjaan berurutan sesuai permintaan pengguna. Satu tahap melewati tes yang relevan dan audit integrasi sebelum tahap selanjutnya dimulai. Native UI, kamera/mikrofon fisik, dan penilaian kualitas perangkat tetap diuji manual oleh pengguna. Tidak memakai computer-use, tidak merekam perangkat otomatis, dan tidak memanggil API berbayar dalam tes.
 
 | Tahap | Implementasi | Audit/gate |
@@ -11,7 +13,7 @@ Pekerjaan berurutan sesuai permintaan pengguna. Satu tahap melewati tes yang rel
 | 5 | Highlight kata, split/merge/import SRT dan transkripsi lokal | Lulus tes dan audit otomatis; kualitas bahasa/perangkat menunggu uji manual |
 | 6 | Tracking mask dengan koreksi manual | Lulus tes dan audit otomatis; rekaman nyata menunggu uji manual |
 
-Root memiliki model/penyimpanan proyek, Tauri, IPC dan integrasi. Agen editor memiliki frontend dan tes browser. Agen render memiliki ekspor dan tes media. Agen capture memiliki backend perangkat/transkripsi/tracking serta audit silang. Perubahan API disepakati lewat CONTRACT.md; setiap file hanya mempunyai satu pemilik aktif.
+Perubahan mencakup penyimpanan proyek dan IPC Tauri, editor dan tes browser, ekspor media, serta perekaman, transkripsi, dan pelacakan di backend. [Kontrak proyek dan IPC](../project-contract.md)
 
 ## Tahap 1
 
@@ -129,7 +131,7 @@ Gate keenam ditutup setelah audit silang ketiga agen dan root tidak menyisakan b
 
 Log integrasi Rust: `artifacts/upgrade-0.4.0/stage6-final-rust.txt`. Log capture, model, vendor, npm dan contoh CLI berada di direktori yang sama. Hasil browser/build/unit terbaru berada di `artifacts/ui/stage6-*`. Tes fokus yang dijalankan ulang tidak ditambahkan ke jumlah unik suite utama.
 
-Pemeriksaan ini memakai media sintetis, HTTP localhost dan browser headless. Tidak ada computer-use, rekaman perangkat baru, cloud transcription berbayar, penghapusan proyek pengguna atau instalasi aplikasi dalam pengujian ini. Uji native/WebView2, kualitas audio nyata, lip-sync, multi-DPI, camera hotplug/Pause/Resume, clean install/uninstall dan penandatanganan tetap terbuka. Kelengkapan distribusi publik dicatat di `THIRD_PARTY_NOTICES.md` dan `TODO.md`; status ini bukan pernyataan siap produksi pada semua perangkat.
+Pemeriksaan ini memakai media sintetis, HTTP localhost dan browser headless. Pengujian perangkat, WebView2, kualitas audio, lip-sync, multi-DPI, pemasangan bersih, dan penandatanganan pada saat itu tercatat sebagai pekerjaan terbuka. [Arsip checklist rilis](release-checklists.md) · [Status lisensi dan sumber](../../THIRD_PARTY_NOTICES.md)
 
 ## Paket pengujian Windows
 

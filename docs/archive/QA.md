@@ -1,5 +1,7 @@
 # Bukti QA 0.1.1
 
+> Arsip pengembangan. Lihat [unduhan publik](https://github.com/real-habibul/screenrecord/releases) untuk versi yang tersedia saat ini.
+
 Catatan 11 November 2026. Status kandidat rilis untuk pengujian. Tabel ini membedakan pengujian otomatis, uji media nyata, dan observasi native. Tidak ada klaim semua perangkat atau alur rilis telah lulus.
 
 ## Hasil yang tersedia
@@ -22,13 +24,13 @@ Catatan 11 November 2026. Status kandidat rilis untuk pengujian. Tabel ini membe
 | Packaging 0.1.1 | NSIS x64, 54.921.263 byte; aplikasi cocok setelah marker bundel Tauri; 47 resource dan notice cocok checksum; FFmpeg/FFprobe hasil ekstraksi berjalan | Installer tidak dieksekusi; signature `NotSigned`; bukan uji install/uninstall |
 | CI | Workflow Windows dan `scripts/verify.ps1` tersedia | Workflow remote belum dijalankan |
 
-Installer: `target/release/bundle/nsis/Screenrecord_0.1.1_x64-setup.exe`, ukuran 52,38 MiB. SHA-256: `508ee593ce7ac8c8c5af8bca35a82e479c4a83d1bffa391d3d71b24b5ba0a9f7`. Bukti ekstraksi dan checksum ada di `artifacts/installer-evidence-0.1.1.json`. Tauri mengganti marker internal jenis bundel dari `UNK` ke `NSS`; pemeriksaan executable mengizinkan perubahan itu saja. Instruksi reproduksi ada di [README](../README.md).
+Installer: `target/release/bundle/nsis/Screenrecord_0.1.1_x64-setup.exe`, ukuran 52,38 MiB. SHA-256: `508ee593ce7ac8c8c5af8bca35a82e479c4a83d1bffa391d3d71b24b5ba0a9f7`. Bukti ekstraksi dan checksum ada di `artifacts/installer-evidence-0.1.1.json`. Tauri mengganti marker internal jenis bundel dari `UNK` ke `NSS`; pemeriksaan executable mengizinkan perubahan itu saja. Instruksi reproduksi ada di [README](../../README.md).
 
 ## Capture dan render
 
-Smoke capture mencakup layar 1080p dengan webcam, mikrofon, dan audio komputer; window 60 fps hingga dua segmen; decode keseluruhan hasil gabungan; serta penghentian paksa host dan pemulihan layar/kursor/webcam yang telah tersimpan. Pemeriksaan tidak menemukan proses FFmpeg milik uji yang tertinggal. Detail perilaku dan perintah ada di [capture README](../crates/capture/README.md).
+Smoke capture mencakup layar 1080p dengan webcam, mikrofon, dan audio komputer; window 60 fps hingga dua segmen; decode keseluruhan hasil gabungan; serta penghentian paksa host dan pemulihan layar/kursor/webcam yang telah tersimpan. Pemeriksaan tidak menemukan proses FFmpeg milik uji yang tertinggal. Detail perilaku dan perintah ada di [capture README](../../crates/capture/README.md).
 
-Pengujian render memeriksa H.264, audio, trim/durasi, dimensi portrait/square, pixel webcam, perubahan area sumber karena zoom, gambar ulang kursor, pembatalan tanpa output parsial, dan perlindungan saat berkas tujuan dibuat oleh proses lain. Lihat [render README](../crates/render/README.md). Komposisi tetap menggunakan CPU, termasuk saat encoder hardware dipilih.
+Pengujian render memeriksa H.264, audio, trim/durasi, dimensi portrait/square, pixel webcam, perubahan area sumber karena zoom, gambar ulang kursor, pembatalan tanpa output parsial, dan perlindungan saat berkas tujuan dibuat oleh proses lain. Lihat [render README](../../crates/render/README.md). Komposisi tetap menggunakan CPU, termasuk saat encoder hardware dipilih.
 
 Uji integrasi memakai sumber `artifacts/capture-audio-final` dan menghasilkan `artifacts/integration-export/recorded-media-1080p.mp4`. Ekspor klip 3 detik selesai dalam 2,989 detik pada mesin ini memakai encoder AMF. Decode penuh keluar dengan kode 0, frame hasil diperiksa untuk zoom/kursor/webcam, dan hash sumber tidak berubah. Angka ini hanya pengamatan satu klip pendek; belum menjadi bukti konsumsi sumber daya atau kinerja pada rekaman panjang.
 

@@ -1,10 +1,12 @@
-# Checklist rilis
+# Arsip checklist rilis
+
+Checklist ini mencatat status pada waktu masing-masing versi diuji. Pekerjaan aktif dicatat di [GitHub Issues](https://github.com/real-habibul/screenrecord/issues). Untuk 0.7.4 gunakan [laporan keandalan](../RELIABILITY-0.7.4.md) dan [checklist perangkat](../CHECKLIST-RILIS-0.7.4.md).
 
 ## Keandalan rekaman 0.7.4
 
-- [x] Tambahkan regresi untuk frame pertama, antrean encoder yang berhenti, waktu editor setelah satu jam dan kegagalan tulis karena ruang habis. [Hasil uji](docs/RELIABILITY-0.7.4.md)
-- [ ] Pengguna mengonfirmasi uji manual 0.7.4 berhasil pada perangkatnya. Lengkapi catatan skenario yang sudah diuji, termasuk pemasangan di Windows 11 bersih, startup pada monitor yang pernah mengalami timeout, rekaman panjang, dan pemulihan. [Checklist manual](docs/CHECKLIST-RILIS-0.7.4.md)
-- [ ] Verifikasi penandatanganan dan materi lisensi sebelum distribusi publik. [Status distribusi](THIRD_PARTY_NOTICES.md)
+- [x] Tambahkan regresi untuk frame pertama, antrean encoder yang berhenti, waktu editor setelah satu jam dan kegagalan tulis karena ruang habis. [Hasil uji](../RELIABILITY-0.7.4.md)
+- [ ] Pengguna mengonfirmasi uji manual 0.7.4 berhasil pada perangkatnya. Lengkapi catatan skenario yang sudah diuji, termasuk pemasangan di Windows 11 bersih, startup pada monitor yang pernah mengalami timeout, rekaman panjang, dan pemulihan. [Checklist manual](../CHECKLIST-RILIS-0.7.4.md)
+- [ ] Verifikasi penandatanganan dan materi lisensi sebelum distribusi publik. [Status distribusi](../../THIRD_PARTY_NOTICES.md)
 
 ## Animasi klik 0.5.2
 
@@ -38,7 +40,7 @@
 - [x] Verifikasi 476 tes berbeda, format/Clippy/TypeScript/build/audit npm produksi dan audit silang. Installer unsigned 0.4.4 dibangun dan diinspeksi: x64 versi 0.4.4, 47 resource cocok checksum. Satu kegagalan awal tes webcam sintetis belum terjelaskan; pengulangan terpisah/paralel/serial lulus dan buktinya tetap dicatat.
 - [ ] Uji Roblox/perangkat, beberapa jendela, Pause/Resume dan instalasi secara manual.
 
-Riset dan batas fungsi tersedia pada [mode Apps 0.4.4](docs/APPS-0.4.4.md).
+Riset dan batas fungsi tersedia pada [mode Apps 0.4.4](APPS-0.4.4.md).
 
 ## Audit rekaman 0.4.3
 
@@ -48,7 +50,7 @@ Riset dan batas fungsi tersedia pada [mode Apps 0.4.4](docs/APPS-0.4.4.md).
 - [x] Gate agregat: 455 tes berbeda lulus, format/Clippy/TypeScript/build/audit npm produksi bersih. Installer unsigned 0.4.3 dibangun dan diinspeksi tanpa memasang/menjalankan aplikasi; x64 versi 0.4.3, 47 resource cocok checksum, engine/probe hasil ekstraksi berjalan.
 - [ ] Uji ulang monitor yang gagal pada perangkat pengguna; penyebab persis timeout lama belum terbukti.
 
-Rincian ada di [audit 0.4.3](docs/AUDIT-0.4.3.md).
+Rincian ada di [audit 0.4.3](AUDIT-0.4.3.md).
 
 ## Webcam 0.4.2
 
@@ -58,7 +60,7 @@ Rincian ada di [audit 0.4.3](docs/AUDIT-0.4.3.md).
 - [x] Build dan inspeksi installer Windows x64 0.4.2: 47 resource cocok checksum, engine/probe berjalan, tanpa memasang atau menjalankan aplikasi. Paket unsigned.
 - [ ] Uji perangkat oleh pengguna: kamera virtual/fisik, Stop lalu rekam ulang, Pause/Resume, dan lip-sync awal/akhir.
 
-Rincian tersedia di [perbaikan webcam 0.4.2](docs/WEBCAM-0.4.2.md).
+Rincian tersedia di [perbaikan webcam 0.4.2](WEBCAM-0.4.2.md).
 
 ## Audit 0.4.1
 
@@ -69,7 +71,7 @@ Rincian tersedia di [perbaikan webcam 0.4.2](docs/WEBCAM-0.4.2.md).
 - [x] Tutup regresi otomatis dan audit silang: 425 tes berbeda lulus, format/Clippy/build/audit npm produksi bersih. Installer unsigned 0.4.1 dibangun dan diinspeksi: x64, 47 resource cocok checksum, engine/probe hasil ekstraksi berjalan tanpa memasang/menjalankan aplikasi.
 - [ ] Uji manual monitor/window, perangkat audio/kamera, GPU, WebView2, serta instalasi bersih dan signing.
 
-Rincian diagnosis dan batas bukti ada di [audit 0.4.1](docs/AUDIT-0.4.1.md).
+Rincian diagnosis dan batas bukti ada di [audit 0.4.1](AUDIT-0.4.1.md).
 
 ## Upgrade 0.4.0
 
@@ -82,7 +84,7 @@ Rincian diagnosis dan batas bukti ada di [audit 0.4.1](docs/AUDIT-0.4.1.md).
 - [x] Bangun dan inspeksi installer unsigned 0.4.0 dari source final; x64, 47 resource cocok checksum dan FFmpeg/FFprobe hasil ekstraksi berjalan. Paket tidak dipasang/dijalankan.
 - [ ] Uji perangkat/WebView2, izin audio/kamera, Pause/Resume, multi-DPI, hasil audio/lip-sync, akurasi transkripsi dan tracking pada rekaman nyata.
 
-Rincian tiap tahap dan batas cakupan tersedia di [laporan 0.4.0](docs/UPGRADES-0.4.0.md). Tes pengembangan tahap ini tidak menggunakan computer-use atau perangkat fisik.
+Rincian tiap tahap dan batas cakupan tersedia di [laporan 0.4.0](UPGRADES-0.4.0.md). Tes pengembangan tahap ini tidak menggunakan computer-use atau perangkat fisik.
 
 ## Project actions dan canvas 0.3.1
 
@@ -95,7 +97,7 @@ Rincian tiap tahap dan batas cakupan tersedia di [laporan 0.4.0](docs/UPGRADES-0
 
 ## Audit tampilan dan alur 0.3.0
 
-- [x] Riset tampilan/alur Screen Studio, Cap dan Tella, serta audit screenshot dan source. [Laporan audit](docs/UI-AUDIT-0.3.0.md).
+- [x] Riset tampilan/alur Screen Studio, Cap dan Tella, serta audit screenshot dan source. [Laporan audit](UI-AUDIT-0.3.0.md).
 - [x] Preview kamera preflight native: aktivasi eksplisit, frame berbatas, timeout/retry, session ID, cleanup sebelum rekam/tutup.
 - [x] Toolbar ringkas, library collapsible, properti dengan tool rail, source-presence dan track kosong yang ringkas.
 - [x] Trim layar dan move/trim zoom, preview Fit/100%/200% dengan pan/scroll, serta ringkasan ekspor.
@@ -110,11 +112,11 @@ Rincian tiap tahap dan batas cakupan tersedia di [laporan 0.4.0](docs/UPGRADES-0
 - [x] Penyimpanan v3, migrasi baca v1/v2, path musik relatif, dan penolakan akses di luar proyek.
 - [x] Pembatalan subtitle memakai job ID; hasil lama tidak diterapkan pada job baru. Key hanya untuk sesi pekerjaan.
 - [x] Verifikasi akhir: 150 tes otomatis (102 Rust/media, 20 unit frontend, 28 browser), format, Clippy, build/TypeScript dan audit npm produksi lulus. Installer unsigned 0.2.0 dibangun dan isi paket diverifikasi tanpa menjalankannya.
-- [ ] Uji manual pengguna: UI Windows, audio nyata, drag/trim/undo, cloud dengan API key, blur pada frame batas, MP4/SRT, dan close/save. Lihat [panduan editor](docs/EDITOR-0.2.0.md).
+- [ ] Uji manual pengguna: UI Windows, audio nyata, drag/trim/undo, cloud dengan API key, blur pada frame batas, MP4/SRT, dan close/save. Lihat [panduan editor](EDITOR-0.2.0.md).
 
 Tidak ada computer-use pada pekerjaan editor 0.2.0. Uji otomatis memakai media sintetis, browser headless dan mock HTTP; tidak ada panggilan cloud berbayar atau perekaman perangkat baru.
 
-Status 0.1.2: kandidat pengujian Windows 11 x64. Tanda centang menunjukkan implementasi dan bukti yang disebutkan, bukan sertifikasi produksi. Perbaikan terbaru dan batasnya ada di [laporan audit 0.1.2](docs/AUDIT-FIXES-0.1.2.md); bukti versi sebelumnya tetap tersedia di [QA 0.1.1](docs/QA.md).
+Status 0.1.2: kandidat pengujian Windows 11 x64. Tanda centang menunjukkan implementasi dan bukti yang disebutkan, bukan sertifikasi produksi. Perbaikan terbaru dan batasnya ada di [laporan audit 0.1.2](AUDIT-FIXES-0.1.2.md); bukti versi sebelumnya tetap tersedia di [QA 0.1.1](QA.md).
 
 ## Perbaikan audit 0.1.2
 
@@ -136,7 +138,7 @@ Status 0.1.2: kandidat pengujian Windows 11 x64. Tanda centang menunjukkan imple
 - [x] Tes regresi tone dengan jitter QPC menghasilkan sampel identik; loopback nyata 4,53 detik tidak lagi memiliki lubang nol searah. File asli tetap utuh.
 - [ ] Verifikasi tombol X pada proses native 0.1.1 setelah proses debug lama ditutup. Kontrol aplikasi masih dihentikan lewat Escape.
 
-## Agen 1: Capture
+## Capture
 
 - [x] Enumerasi monitor, window, mikrofon, dan webcam yang tersedia.
 - [x] Capture 30/60 fps tanpa pointer bawaan, dengan metadata posisi/tombol/visibilitas kursor.
@@ -146,7 +148,7 @@ Status 0.1.2: kandidat pengujian Windows 11 x64. Tanda centang menunjukkan imple
 - [ ] Ukur lip-sync fisik, drift durasi panjang, dan dampak penggunaan CPU/memori pada capture.
 - [ ] Lengkapi matriks perangkat, DPI, multi-monitor, serta perubahan/unplug perangkat saat merekam.
 
-## Agen 2: Render
+## Render
 
 - [x] Zoom otomatis/manual dengan transisi halus; pusat tetap atau mengikuti kursor.
 - [x] Cursor redraw/smoothing, trim/crop, aspect, warna latar, padding, dan sudut membulat.
@@ -156,7 +158,7 @@ Status 0.1.2: kandidat pengujian Windows 11 x64. Tanda centang menunjukkan imple
 - [x] Ekspor rekaman nyata 3 detik: H.264 1920 × 1080/30 fps + AAC, encoder AMF, decode lengkap, pemeriksaan frame zoom/kursor/webcam, hash sumber tetap.
 - [ ] Ukur throughput/CPU/memori ekspor pada 1080p/1440p/2160p dan matriks GPU berbeda.
 
-## Agen 3: Editor
+## Editor
 
 - [x] Pemilihan sumber/perangkat, webcam, serta status perekaman dan error yang dapat ditindaklanjuti.
 - [x] Daftar proyek tersimpan, preview, timeline, dan tambah/ubah/hapus zoom.
@@ -168,7 +170,7 @@ Status 0.1.2: kandidat pengujian Windows 11 x64. Tanda centang menunjukkan imple
 - [ ] Lengkapi validasi native WebView2 setelah perbaikan terakhir: kualitas audio/lip-sync, ekspor, dan save/close. Pembukaan proyek, gambar webcam, playback maju, dan pause sudah diperiksa pada build 0.1.2.
 - [ ] Audit aksesibilitas dengan screen reader dan Windows high contrast; uji DPI/scaling tambahan.
 
-## Root: Integrasi dan rilis
+## Integrasi dan rilis
 
 - [x] Workspace Rust/Tauri, DTO camelCase, validasi IPC, dan frontend terintegrasi.
 - [x] Penyimpanan proyek atomik, validasi path, dan integrasi pemulihan saat startup.

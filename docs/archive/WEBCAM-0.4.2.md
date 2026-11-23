@@ -1,5 +1,9 @@
 # Perbaikan webcam 0.4.2
 
+> Arsip pengembangan. Lihat [unduhan publik](https://github.com/real-habibul/screenrecord/releases) untuk versi yang tersedia saat ini.
+
+> Jalur `artifacts/` dan `target/` merujuk ke hasil lokal dari pengujian saat itu. Panduan untuk menjalankan pemeriksaan saat ini ada di [panduan kontribusi](../../CONTRIBUTING.md#memilih-pengujian).
+
 Versi ini memperbaiki penghentian proses webcam dan timestamp untuk rekaman baru. Tiga agen menangani capture, audit render/media, dan audit lifecycle frontend; root menangani integrasi, kontrak, versi, serta paket. Pengujian menggunakan fixture sintetis dan browser headless. Rekaman pengguna tidak diubah dan perangkat capture tidak diaktifkan.
 
 ## Dasar diagnosis
@@ -18,19 +22,19 @@ Rujukan: [dokumentasi opsi DirectShow](https://ffmpeg.org/ffmpeg-devices.html#ds
 
 ## Verifikasi dan paket
 
-Kode backend final lulus 235 tes workspace Rust dan 14 tes media capture tambahan. Format Rust dan Clippy seluruh workspace/all-targets dengan `-D warnings` bersih. Bukti: [workspace-final.log](../artifacts/webcam-0.4.2/workspace-final.log), [capture-media-final.log](../artifacts/webcam-0.4.2/capture-media-final.log), dan [clippy-final.log](../artifacts/webcam-0.4.2/clippy-final.log).
+Kode backend final lulus 235 tes workspace Rust dan 14 tes media capture tambahan. Format Rust dan Clippy seluruh workspace/all-targets dengan `-D warnings` bersih. Bukti: `artifacts/webcam-0.4.2/workspace-final.log`, `artifacts/webcam-0.4.2/capture-media-final.log`, dan `artifacts/webcam-0.4.2/clippy-final.log`.
 
-Regresi kamera menggunakan pipeline H264_MF yang dipakai aplikasi, input 28,8 fps dengan jeda 80 ms, serta penanda warna pada waktu yang diketahui. Hasilnya mempertahankan waktu kejadian; teardown yang sengaja ditahan diuji dengan child process milik tes. Output lengkap divalidasi dan dipublikasikan, sedangkan output rusak, penanda akhir yang hilang, dan error encoder tetap ditolak. Tes memeriksa keberadaan hasil decode penuh, bukan hanya metadata: [camera-full-decode-proof.log](../artifacts/webcam-0.4.2/camera-full-decode-proof.log). Tes proses juga membuktikan kemajuan memperpanjang kesempatan flush, tanpa melewati batas total, dan repeated stats tidak dianggap kemajuan.
+Regresi kamera menggunakan pipeline H264_MF yang dipakai aplikasi, input 28,8 fps dengan jeda 80 ms, serta penanda warna pada waktu yang diketahui. Hasilnya mempertahankan waktu kejadian; teardown yang sengaja ditahan diuji dengan child process milik tes. Output lengkap divalidasi dan dipublikasikan, sedangkan output rusak, penanda akhir yang hilang, dan error encoder tetap ditolak. Tes memeriksa keberadaan hasil decode penuh, bukan hanya metadata: `artifacts/webcam-0.4.2/camera-full-decode-proof.log`. Tes proses juga membuktikan kemajuan memperpanjang kesempatan flush, tanpa melewati batas total, dan repeated stats tidak dianggap kemajuan.
 
 Tes render memeriksa PTS yang tidak teratur, offset 137 ms, cut pecahan detik, gap kamera, EOF, serta kesamaan audio hasil decode. Byte media sumber tetap sama. Audit silang memeriksa pemilihan clock, kepemilikan child/reader, lokasi validasi, status finalizing, dan jalur recovery. Tidak ditemukan blocker pada jalur yang diperiksa.
 
-Frontend final lulus 108 tes browser dan 74 tes unit, termasuk penantian finalisasi lama, hasil ready/interrupted/error, Stop dari kontrol eksternal, penutupan jendela, dan EOF kamera dengan offset lama maupun timing baru. Pesan saat mencoba menutup jendela kini meminta pengguna menunggu finalisasi ketika Stop memang sedang berjalan. Tidak ada perubahan layout atau DTO. Bukti: [frontend-browser-final.log](../artifacts/webcam-0.4.2/frontend-browser-final.log), [frontend-unit.log](../artifacts/webcam-0.4.2/frontend-unit.log), dan [frontend-final-focused.log](../artifacts/webcam-0.4.2/frontend-final-focused.log).
+Frontend final lulus 108 tes browser dan 74 tes unit, termasuk penantian finalisasi lama, hasil ready/interrupted/error, Stop dari kontrol eksternal, penutupan jendela, dan EOF kamera dengan offset lama maupun timing baru. Pesan saat mencoba menutup jendela kini meminta pengguna menunggu finalisasi ketika Stop memang sedang berjalan. Tidak ada perubahan layout atau DTO. Bukti: `artifacts/webcam-0.4.2/frontend-browser-final.log`, `artifacts/webcam-0.4.2/frontend-unit.log`, dan `artifacts/webcam-0.4.2/frontend-final-focused.log`.
 
 Total gate final: **431 tes berbeda lulus** (235 Rust + 14 media capture + 74 unit frontend + 108 browser). Build frontend/TypeScript dan audit npm produksi lulus, dengan 0 vulnerability dilaporkan. Satu run browser awal terganggu reload Vite saat perubahan teks; run tersebut disimpan sebagai bukti iterasi dan tidak dihitung lulus. Run final mengulang seluruh suite dengan kode dibekukan. Benchmark, fixture child yang dijalankan oleh tes induk, serta tes model/cloud yang tidak berubah tidak dihitung sebagai tes tambahan versi ini. Tidak ada uji computer-use atau aktivasi perangkat capture.
 
-Installer Windows x64: [Screenrecord_0.4.2_x64-setup.exe](../target/release/bundle/nsis/Screenrecord_0.4.2_x64-setup.exe), 56.143.366 byte (53,54 MiB), belum ditandatangani. SHA-256: `55dc216ecbb504eb6a12dd90114a9089ad9db112e481eb4eb9fe500b5bd44d08`.
+Installer Windows x64: `target/release/bundle/nsis/Screenrecord_0.4.2_x64-setup.exe`, 56.143.366 byte (53,54 MiB), belum ditandatangani. SHA-256: `55dc216ecbb504eb6a12dd90114a9089ad9db112e481eb4eb9fe500b5bd44d08`.
 
-Inspeksi tanpa menjalankan installer membuktikan executable cocok dengan hasil release setelah marker NSIS Tauri, 47 resource cocok checksum, serta FFmpeg/FFprobe hasil ekstraksi berhasil menjalankan `-version`. Notice dan lisensi yang diperiksa cocok dengan sumber. Aplikasi tidak dipasang atau dijalankan. Bukti: [installer-evidence-0.4.2.json](../artifacts/installer-evidence-0.4.2.json), [log build](../artifacts/webcam-0.4.2/release-build.log), dan [checksum](../target/release/bundle/nsis/Screenrecord_0.4.2_x64-setup.exe.sha256).
+Inspeksi tanpa menjalankan installer membuktikan executable cocok dengan hasil release setelah marker NSIS Tauri, 47 resource cocok checksum, serta FFmpeg/FFprobe hasil ekstraksi berhasil menjalankan `-version`. Notice dan lisensi yang diperiksa cocok dengan sumber. Aplikasi tidak dipasang atau dijalankan. Bukti: `artifacts/installer-evidence-0.4.2.json`, log build (`artifacts/webcam-0.4.2/release-build.log`), dan checksum (`target/release/bundle/nsis/Screenrecord_0.4.2_x64-setup.exe.sha256`).
 
 ## Uji perangkat oleh pengguna
 

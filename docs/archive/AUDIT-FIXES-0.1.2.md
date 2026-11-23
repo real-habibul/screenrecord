@@ -1,5 +1,9 @@
 # Perbaikan audit 0.1.2
 
+> Arsip pengembangan. Lihat [unduhan publik](https://github.com/real-habibul/screenrecord/releases) untuk versi yang tersedia saat ini.
+
+> Jalur `artifacts/` dan `target/` merujuk ke hasil lokal dari pengujian saat itu. Panduan untuk menjalankan pemeriksaan saat ini ada di [panduan kontribusi](../../CONTRIBUTING.md#memilih-pengujian).
+
 11 November 2026. Kandidat pengujian Windows 11 x64. Perubahan mengatasi P1, P2, dan optimasi yang terkait; tidak menambah fitur kreator. Pengujian otomatis tidak menggantikan validasi perangkat atau bukti rilis publik.
 
 ## P1
@@ -45,7 +49,7 @@ Pengukuran memakai video sintetis pada mesin pengembangan, runtime FFmpeg bundel
 | 15 detik | 13,7267 detik | 897 | 42.108 byte |
 | 60 detik | 53,6567 detik | 897 | 42.108 byte |
 
-Benchmark penjadwalan terisolasi 38.400 frame berubah dari 59,6915 menjadi 4,7013 detik, sekitar 12,70 kali. Rasio ini bukan percepatan seluruh ekspor. Benchmark ekspor penuh memakai pemilihan encoder otomatis dan tidak menyimpan tag encoder setiap hasil. Angka tersebut tidak membuktikan kecepatan GPU/CPU lain. Bukti: [render-hardening-benchmark.json](../artifacts/render-hardening-benchmark.json).
+Benchmark penjadwalan terisolasi 38.400 frame berubah dari 59,6915 menjadi 4,7013 detik, sekitar 12,70 kali. Rasio ini bukan percepatan seluruh ekspor. Benchmark ekspor penuh memakai pemilihan encoder otomatis dan tidak menyimpan tag encoder setiap hasil. Angka tersebut tidak membuktikan kecepatan GPU/CPU lain. Bukti: `artifacts/render-hardening-benchmark.json`.
 
 Video sementara per bagian dan MP4 final berada di disk bersamaan saat muxing, sehingga perlu sekitar dua kali ukuran video keluaran. Komposisi masih memakai CPU.
 
@@ -53,20 +57,20 @@ Video sementara per bagian dan MP4 final berada di disk bersamaan saat muxing, s
 
 Total 104 tes otomatis berbeda lulus: 72 Rust/media, 11 unit frontend, dan 21 browser. Format, Clippy dengan warnings denied, build frontend, serta audit npm produksi juga lulus; audit npm melaporkan nol kerentanan pada pemeriksaan ini. Dua benchmark dijalankan terpisah dari hitungan tersebut.
 
-- Capture: 25 unit test dan 3 tes media sintetis; log di [capture-p2](../artifacts/capture-p2/). Tidak ada perangkat yang diaktifkan.
+- Capture: 25 unit test dan 3 tes media sintetis; log di `artifacts/capture-p2`. Tidak ada perangkat yang diaktifkan.
 - Core: 21 tes, termasuk metadata delapan jam, konkurensi Windows, relocasi, integritas cursor, dan batas durasi.
 - Integrasi aplikasi: dua tes memastikan publikasi proyek/offset dan pemeliharaan marker recovery saat validasi gagal.
 - Render: 14 tes library, 5 tes integrasi, serta tes loader contoh; dua benchmark dijalankan eksplisit. Software Media Foundation juga menghasilkan MP4 multi-bagian yang lolos decode.
 - Frontend: build, 11 unit test, 20 alur editor headless, dan satu uji media rekaman asli melalui HTTP loopback/AudioWorklet. Uji browser memakai fixture IPC, bukan backend Tauri.
 - Patch encoder: satu tes antrean/EOS melalui manifest vendored dependency.
-- Ekspor rekaman yang sudah ada: H.264/AAC 1920 x 1080, 90 frame, 3,0 detik, decode penuh; hash semua sumber tetap sama. Bukti di [evidence.json](../artifacts/recorded-media-check-9e62e8764b0844fd866922366f408828/evidence.json).
-- Smoke test native dari EXE hasil ekstraksi installer final: versi 0.1.2 terlihat, proyek tersimpan berhasil dibuka, frame layar dan webcam tampil, serta playhead maju dari 0:00,0 ke 0:12,2 saat playback. Pause kembali menampilkan tombol Play. Tidak ada pesan error yang terlihat. Tidak ada capture atau penyimpanan edit pada uji ini. Kualitas suara, lip-sync, dan latensi perangkat tidak diukur. Tool menghentikan percobaan klik X karena mendeteksi input pengguna; hasil close belum terverifikasi. Bukti: [native-smoke-0.1.2.json](../artifacts/native-smoke-0.1.2.json).
+- Ekspor rekaman yang sudah ada: H.264/AAC 1920 x 1080, 90 frame, 3,0 detik, decode penuh; hash semua sumber tetap sama. Bukti di `artifacts/recorded-media-check-9e62e8764b0844fd866922366f408828/evidence.json`.
+- Smoke test native dari EXE hasil ekstraksi installer final: versi 0.1.2 terlihat, proyek tersimpan berhasil dibuka, frame layar dan webcam tampil, serta playhead maju dari 0:00,0 ke 0:12,2 saat playback. Pause kembali menampilkan tombol Play. Tidak ada pesan error yang terlihat. Tidak ada capture atau penyimpanan edit pada uji ini. Kualitas suara, lip-sync, dan latensi perangkat tidak diukur. Tool menghentikan percobaan klik X karena mendeteksi input pengguna; hasil close belum terverifikasi. Bukti: `artifacts/native-smoke-0.1.2.json`.
 
-Verifikasi gabungan dan build installer dicatat dalam [verification-0.1.2.log](../artifacts/verification-0.1.2.log). Pemeriksaan integrasi terakhir juga meneruskan peringatan webcam pendek pada Stop yang berhasil; hasil tes aplikasi, loader contoh, dan rebuild sesudah perubahan itu ada di [finalization-0.1.2.log](../artifacts/finalization-0.1.2.log). Pemeriksaan paket memeriksa EXE x64, runtime, source limiter yang terbaca, dan lisensi terhadap checksum sumber; pemeriksaan ekstraksi bukan pengujian install/uninstall.
+Verifikasi gabungan dan build installer dicatat dalam `artifacts/verification-0.1.2.log`. Pemeriksaan integrasi terakhir juga meneruskan peringatan webcam pendek pada Stop yang berhasil; hasil tes aplikasi, loader contoh, dan rebuild sesudah perubahan itu ada di `artifacts/finalization-0.1.2.log`. Pemeriksaan paket memeriksa EXE x64, runtime, source limiter yang terbaca, dan lisensi terhadap checksum sumber; pemeriksaan ekstraksi bukan pengujian install/uninstall.
 
 ## Batas yang masih terbuka
 
-Installer final: `target/release/bundle/nsis/Screenrecord_0.1.2_x64-setup.exe`, 55.029.259 byte (52,48 MiB), unsigned. SHA-256: `40936beb52a1d979812d03926bae3288d18fe1d5d4fc460352dd24fbf08366bd`. Ekstraksi membuktikan EXE x64 cocok dengan build setelah marker bundel Tauri, 47 resource cocok checksum, source/lisensi limiter dan lisensi windows-capture tersedia, serta FFmpeg/FFprobe hasil ekstraksi berjalan. Installer belum dieksekusi. Bukti: [installer-evidence-0.1.2.json](../artifacts/installer-evidence-0.1.2.json).
+Installer final: `target/release/bundle/nsis/Screenrecord_0.1.2_x64-setup.exe`, 55.029.259 byte (52,48 MiB), unsigned. SHA-256: `40936beb52a1d979812d03926bae3288d18fe1d5d4fc460352dd24fbf08366bd`. Ekstraksi membuktikan EXE x64 cocok dengan build setelah marker bundel Tauri, 47 resource cocok checksum, source/lisensi limiter dan lisensi windows-capture tersedia, serta FFmpeg/FFprobe hasil ekstraksi berjalan. Installer belum dieksekusi. Bukti: `artifacts/installer-evidence-0.1.2.json`.
 
 - Sinkronisasi fisik webcam/mic, drift durasi panjang, RF64 di atas 4 GiB, dan soak test.
 - Final WASAPI drain pada driver berbeda; pencabutan perangkat; disk penuh/izin ditolak pada aplikasi native.
