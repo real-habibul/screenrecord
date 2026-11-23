@@ -2,7 +2,7 @@
 
 Screenrecord adalah perekam layar dan editor video untuk Windows 11 x64. Setelah merekam, Anda bisa mengecilkan suara komputer tanpa mengubah volume mikrofon, memindahkan tampilan webcam, atau mengatur zoom pada bagian yang ingin ditunjukkan. Proyek menyimpan sumber rekaman dan hasil edit secara terpisah.
 
-[Unduh Screenrecord untuk Windows](https://screenrecord.88apps.dev) · [Kode sumber](https://github.com/real-habibul/screenrecord)
+[Unduh Screenrecord untuk Windows](https://screenrecord.88apps.dev) · [Rilis GitHub](https://github.com/real-habibul/screenrecord/releases/latest)
 
 ![Editor Screenrecord menampilkan tutorial palet warna, timeline rekaman, dan pengaturan volume audio komputer.](site/assets/editor.webp)
 

@@ -118,7 +118,8 @@ h1 {
 .download:hover { background: var(--action-hover); }
 .download span { font-size: 1.25em; line-height: 1; }
 .release p { margin-top: .8rem; color: var(--muted); font-size: .91rem; }
-.checksum {
+.release-links { display: flex; flex-wrap: wrap; column-gap: 1.2rem; }
+.release-links a {
   display: inline-flex;
   min-height: 2.75rem;
   align-items: center;
