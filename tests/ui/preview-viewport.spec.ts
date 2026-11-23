@@ -513,12 +513,15 @@ for (const runtime of ['unavailable', 'security-error'] as const) test(`pausing 
 for (const allowed of [true, false]) test(`cross-origin video ${allowed ? 'renders with anonymous CORS' : 'rejects a denied origin without retaining old pixels'}`, async ({ page }) => {
   await harness(page)
   let allowRequests = allowed
-  await page.route('http://localhost:1420/foreign-source.mp4', route => {
+  const pageOrigin = new URL(page.url()).origin
+  const foreignSource = new URL('/foreign-source.mp4', pageOrigin)
+  foreignSource.hostname = foreignSource.hostname === 'localhost' ? '127.0.0.1' : 'localhost'
+  await page.route(foreignSource.href, route => {
     const body = readFileSync(fixture); const range = route.request().headers().range?.match(/bytes=(\d+)-(\d*)/)
     const start = range ? Number(range[1]) : 0; const end = range?.[2] ? Math.min(Number(range[2]), body.length - 1) : body.length - 1
-    return route.fulfill({ status: range ? 206 : 200, contentType: 'video/mp4', headers: { 'Accept-Ranges': 'bytes', 'Content-Length': String(end - start + 1), ...(range ? { 'Content-Range': `bytes ${start}-${end}/${body.length}` } : {}), 'Access-Control-Allow-Origin': allowRequests ? 'http://127.0.0.1:1420' : 'https://denied.invalid' }, body: body.subarray(start, end + 1) })
+    return route.fulfill({ status: range ? 206 : 200, contentType: 'video/mp4', headers: { 'Accept-Ranges': 'bytes', 'Content-Length': String(end - start + 1), ...(range ? { 'Content-Range': `bytes ${start}-${end}/${body.length}` } : {}), 'Access-Control-Allow-Origin': allowRequests ? pageOrigin : 'https://denied.invalid' }, body: body.subarray(start, end + 1) })
   })
-  await page.evaluate(() => { (window as any).fixture.project.screenPath = 'http://localhost:1420/foreign-source.mp4' })
+  await page.evaluate(source => { (window as any).fixture.project.screenPath = source }, foreignSource.href)
   expect(await page.locator('video').getAttribute('crossorigin')).toBe('anonymous')
   if (allowed) {
     await expect.poll(() => page.locator('video').evaluate(element => element.readyState)).toBeGreaterThanOrEqual(2)

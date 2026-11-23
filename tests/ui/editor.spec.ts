@@ -17,6 +17,10 @@ const cutFixture = path.resolve('artifacts/ui/cut-zones.mp4')
 const cutAudio = path.resolve('artifacts/ui/cut-zones-fractional.wav')
 const loopAudio = path.resolve('artifacts/ui/loop-zones-fractional.wav')
 const screenshotDir = path.resolve('artifacts/ui')
+function writeEvidence(file: string, measurements: unknown) {
+  mkdirSync(path.dirname(file), { recursive: true })
+  writeFileSync(file, JSON.stringify(measurements, null, 2))
+}
 const pcmTapSource = "class Tap extends AudioWorkletProcessor {process(inputs,outputs){let peak=0,count=0,energy=0;for(const c of inputs[0]??[]){count+=c.length;for(const n of c){peak=Math.max(peak,Math.abs(n));energy+=n*n;}}this.port.postMessage({peak,count,energy});for(const c of outputs[0]??[])c.fill(0);return true}}registerProcessor('pcm-tap',Tap)"
 test.beforeAll(() => {
   mkdirSync(screenshotDir, { recursive: true })
@@ -566,7 +570,7 @@ test('video background preserves one-pixel privacy, opaque edges and bounded buf
     background.release()
     return { foregroundEdges, isolatedForeground, first, basePixels, moved, cleared, width, height, tiled: { red, green, blue, alpha, drawMs }, released: result.width === 0 && result.height === 0 }
   })
-  writeFileSync('artifacts/vertical-0.5.0/background-pixel-evidence.json', JSON.stringify(evidence, null, 2))
+  writeEvidence('artifacts/vertical-0.5.0/background-pixel-evidence.json', evidence)
   expect(evidence.isolatedForeground).toEqual(Array(4).fill([0, 0, 255, 255])); expect(evidence.first).toEqual(Array(5).fill([0, 0, 255, 255])); expect(evidence.moved).toEqual(Array(5).fill([0, 255, 0, 255])); expect(evidence.cleared).toEqual(Array(5).fill([0, 0, 0, 255])); expect(Math.max(evidence.width, evidence.height)).toBeLessThanOrEqual(960); expect(evidence.released).toBe(true); expect(evidence.tiled).toMatchObject({ red: 0, green: 0, blue: 255, alpha: 255 })
 })
 
@@ -599,7 +603,7 @@ test('foreground tile isolation preserves partial-tile gradients and opaque frac
     const cached = [...(sampler as any).tiles.values()] as HTMLCanvasElement[]; const cachedCount = cached.length; const cacheBytes = cached.reduce((sum, tile) => sum + tile.width * tile.height * 4, 0); sampler.release()
     return { solidError, gradientError, stale, transformedError, cachedCount, cacheBytes, released: cached.every(tile => tile.width === 0 && tile.height === 0) }
   })
-  writeFileSync('artifacts/vertical-0.5.0/foreground-tile-evidence.json', JSON.stringify(evidence, null, 2))
+  writeEvidence('artifacts/vertical-0.5.0/foreground-tile-evidence.json', evidence)
   expect(evidence.transformedError).toBe(0); expect(evidence.solidError).toBe(0); expect(evidence.gradientError).toBeLessThanOrEqual(2); expect(evidence.stale).toBe(0); expect(evidence.cachedCount).toBeLessThanOrEqual(4); expect(evidence.cacheBytes).toBeLessThanOrEqual(4 * 512 * 512 * 4); expect(evidence.released).toBe(true)
 })
 
@@ -731,7 +735,7 @@ for (const pauseDuringSeek of [false, true]) test(pauseDuringSeek
       await expect(screen).toHaveJSProperty('paused', true)
     }
     const evidence = await page.evaluate(() => { const w = window as any; const canvas = document.querySelector('canvas.preview-canvas') as HTMLCanvasElement; return { target: w.__staleScreen.currentTime, oldPts: w.__oldFrame.timestamp / 1e6, oldDuration: w.__oldFrame.duration / 1e6, pixel: [...canvas.getContext('2d')!.getImageData(canvas.width / 2, canvas.height / 2, 1, 1).data] } })
-    if (!pauseDuringSeek) writeFileSync(path.resolve('artifacts/perf-0.5.1/new-seek-stale-frame-evidence.json'), JSON.stringify(evidence, null, 2))
+    if (!pauseDuringSeek) writeEvidence('artifacts/perf-0.5.1/new-seek-stale-frame-evidence.json', evidence)
     await expect(page.getByText('Seeking edited video...', { exact: true })).toBeVisible(); expect(evidence.pixel).toEqual([32, 32, 32, 255])
     await page.evaluate(() => { const w = window as any; w.__holdStaleFrame = false; const fresh = new w.__NativeFrame(w.__staleScreen); try { w.__currentSeekCallback(performance.now(), { mediaTime: fresh.timestamp / 1e6 }) } finally { fresh.close() } })
     await expect(page.getByText('Seeking edited video...', { exact: true })).toBeHidden(); await expect.poll(async () => (await screenPixel(page, .5, .5))[2]).toBeGreaterThan(240)
@@ -1779,7 +1783,7 @@ test('audition loops output ranges across cuts with decoded restart and no out-o
   await page.getByRole('button', { name: 'Pause preview', exact: true }).click(); await expect.poll(() => page.evaluate(() => (window as any).__audioContexts[0].state)).toBe('suspended')
   const evidence = await page.evaluate(() => ({ starts: (window as any).__loopStarts, draws: (window as any).__loopDraws, red: (window as any).__loopRed, pcm: (window as any).__loopPcm }))
   expect(evidence.draws).toBeGreaterThan(20); expect(evidence.red).toBe(0); expect(evidence.pcm.count).toBeGreaterThan(48_000); expect(evidence.pcm.peak).toBeLessThan(1e-5)
-  writeFileSync('artifacts/audition-stage3/loop-privacy.json', JSON.stringify(evidence, null, 2))
+  writeEvidence('artifacts/audition-stage3/loop-privacy.json', evidence)
   const starts = evidence.starts; await page.waitForTimeout(160); expect(await page.evaluate(() => (window as any).__loopStarts)).toBe(starts)
   expect(await page.locator('audio, video').evaluateAll(elements => elements.every(element => (element as HTMLMediaElement).paused))).toBe(true)
 })
@@ -1801,7 +1805,7 @@ test('audition restarts at A after natural video ended even when the animation c
   await page.getByRole('button', { name: 'Play preview', exact: true }).click(); await expect.poll(() => page.evaluate(() => (window as any).__naturalEnds), { timeout: 10_000 }).toBeGreaterThanOrEqual(2); await expect.poll(() => page.evaluate(() => (window as any).__tailStarts)).toBeGreaterThanOrEqual(3)
   await page.getByRole('button', { name: 'Pause preview', exact: true }).click(); const count = await page.evaluate(() => (window as any).__tailStarts); await page.waitForTimeout(300); expect(await page.evaluate(() => (window as any).__tailStarts)).toBe(count); expect(await page.locator('video[data-track="screen recording"]').evaluate(element => element.paused)).toBe(true)
   const retained = await page.evaluate(() => { const pcm = (window as any).__tailPcm; return { ...pcm, rms: Math.sqrt(pcm.energy / pcm.count) } }); expect(retained.count).toBeGreaterThan(48_000); expect(retained.peak).toBeCloseTo(.12, 4); expect(retained.rms).toBeGreaterThan(.1)
-  writeFileSync('artifacts/audition-stage3/loop-positive-pcm.json', JSON.stringify(retained, null, 2))
+  writeEvidence('artifacts/audition-stage3/loop-positive-pcm.json', retained)
 })
 
 for (const action of ['pause', 'project switch']) test(`a delayed audition restart cannot resume after ${action}`, async ({ page }) => {
@@ -1888,7 +1892,7 @@ test('hard cuts never draw removed red frames or play removed tone samples durin
     (frame: {time: number; pts: number}) => Math.abs(frame.time - 29 / 30) < .001 && frame.pts < .9977,
   ))).toBe(true)
   const evidence = await page.evaluate(() => ({ pcm: (window as any).__pcm, removed: (window as any).__removedDraws, red: (window as any).__redDraws, redDetails: (window as any).__redDetails, draws: (window as any).__videoDraws, framesCreated: (window as any).__framesCreated, framesClosed: (window as any).__framesClosed, retainedSnapshots: (window as any).__retainedSnapshots as Array<{ time: number; pts: number; end: number }> }))
-  writeFileSync(path.join(screenshotDir, 'cut-privacy-evidence.json'), JSON.stringify(evidence, null, 2))
+  writeEvidence(path.join(screenshotDir, 'cut-privacy-evidence.json'), evidence)
   expect(evidence.removed).toEqual([]); expect(evidence.red).toBe(0); expect(evidence.draws).toBeGreaterThan(20); expect(evidence.pcm.count).toBeGreaterThan(96_000); expect(evidence.pcm.peak).toBeLessThan(1e-5)
   expect(evidence.framesCreated).toBeGreaterThan(0); expect(evidence.framesClosed).toBe(evidence.framesCreated); expect(evidence.retainedSnapshots.some(frame => frame.time > frame.end - 1 / 30 && frame.pts < frame.end)).toBe(true)
   await page.evaluate(() => { const w = window as any; w.__videoDraws = 0; w.__test.patchProject({ cameraPath: null, systemAudioPath: '/test-media/audio.wav', edits: { music: [], systemVolume: .25 } }) })
@@ -1906,7 +1910,7 @@ test('hard cuts never draw removed red frames or play removed tone samples durin
   const reference = readFileSync(audioFixture); let offset = 12; let referencePeak = 0
   while (offset + 8 <= reference.length) { const length = reference.readUInt32LE(offset + 4); if (reference.toString('ascii', offset, offset + 4) === 'data') { for (let i = offset + 8; i + 4 <= Math.min(reference.length, offset + 8 + length); i += 4) referencePeak = Math.max(referencePeak, Math.abs(reference.readFloatLE(i))); break }; offset += 8 + length + (length % 2) }
   expect(referencePeak).toBeGreaterThan(.5); expect(retained.peak).toBeCloseTo(referencePeak * .25, 3); expect(retained.rms).toBeGreaterThan(referencePeak * .25 / Math.sqrt(2) * .8)
-  writeFileSync(path.join(screenshotDir, 'cut-privacy-evidence.json'), JSON.stringify({ ...evidence, retained }, null, 2))
+  writeEvidence(path.join(screenshotDir, 'cut-privacy-evidence.json'), { ...evidence, retained })
   await page.screenshot({ path: path.join(screenshotDir, 'video-cut-preview.png') })
 })
 
@@ -2309,7 +2313,7 @@ test('populated editor preserves preview space, reachable tools and measured con
       await page.screenshot({ path: path.join(screenshotDir, `editor-${width}x${height}-${theme}.png`) })
     }
   }
-  writeFileSync(path.join(screenshotDir, 'layout-contrast.json'), JSON.stringify(measurements, null, 2))
+  writeEvidence(path.join(screenshotDir, 'layout-contrast.json'), measurements)
 })
 
 test('music import, source trim, fades, direct dragging and undo persist through the small edit DTO', async ({ page }) => {
@@ -2906,7 +2910,7 @@ test('a three-hour source seeks, plays audio across a long cut, and reopens edit
   await expect.poll(() => screen.evaluate(element => element.currentTime)).toBeCloseTo(10801, 4)
   await expect.poll(() => audio.evaluate(element => element.currentTime)).toBeCloseTo(10801, 4)
   await expect(page.getByRole('alert')).toBeHidden()
-  writeFileSync(path.resolve('artifacts/long-recording-ui/long-cut-evidence.json'), JSON.stringify({ durationSeconds: 10802, removedSeconds: 7199, elapsedSeconds: (Date.now() - startedAt) / 1000, ...evidence }, null, 2))
+  writeEvidence('artifacts/long-recording-ui/long-cut-evidence.json', { durationSeconds: 10802, removedSeconds: 7199, elapsedSeconds: (Date.now() - startedAt) / 1000, ...evidence })
 })
 
 if (process.env.SCREENRECORD_UI_SOAK === '1') test('ten-minute editor playback soak across hour-scale cuts and live track changes', async ({ page }) => {
@@ -2965,7 +2969,7 @@ if (process.env.SCREENRECORD_UI_SOAK === '1') test('ten-minute editor playback s
       await page.waitForTimeout(Math.max(0, start + (step + 1) * 30000 - Date.now()))
       const point = await page.evaluate(() => (window as any).readSoak())
       checkpoints.push(point)
-      writeFileSync(path.join(output, 'editor-10min-soak.json'), JSON.stringify({ durationSeconds: 10802, elapsedSeconds: (Date.now() - start) / 1000, adjustments, checkpoints, errors }, null, 2))
+      writeEvidence(path.join(output, 'editor-10min-soak.json'), { durationSeconds: 10802, elapsedSeconds: (Date.now() - start) / 1000, adjustments, checkpoints, errors })
       expect(point.maxStationaryMs).toBeLessThan(5000)
       await expect(page.getByRole('button', { name: 'Pause preview', exact: true })).toBeVisible()
       await expect(page.getByRole('alert')).toBeHidden()
