@@ -64,3 +64,7 @@ Untuk empat tes kuota, jalankan `.\scripts\test-disk-full.ps1`. Skrip memakai vo
 SHA-256 kandidat yang diperiksa sebelum pengemasan publik adalah `a97f69ecb105b7bc667cd3bc4e2d6d7936b6de4ad2b5b350e6e532bc12d146d4`. Untuk memeriksa installer yang diunduh, gunakan berkas SHA-256 yang menyertai paket publik. [Rilis Screenrecord](https://github.com/real-habibul/screenrecord/releases)
 
 Daftar perintah untuk suite standar tersedia di skrip verifikasi. Opsi `-BuildInstaller` juga membangun installer dan menghitung SHA-256. Skrip inspeksi membandingkan isi paket dengan hasil build. [Verifikasi Windows](../scripts/verify.ps1) · [Inspeksi installer](../scripts/inspect-installer.ps1)
+
+## Temuan setelah publikasi
+
+Pada satu runner Windows di GitHub, pemeriksaan encoder H.264 pertama gagal. Tes berikutnya berhasil mengenkode video dengan ukuran dan frame rate yang sama. Installer 0.7.4 memberi encoder perangkat lunak Media Foundation waktu delapan detik untuk merespons. Perubahan di `main` memberi encoder tersebut 30 detik, tetap memungkinkan pengguna membatalkan proses, dan menyertakan penyebab jika pemeriksaan gagal. Log dari rilis 0.7.4 tidak merekam alasan kegagalan encoder tersebut. [Hasil CI Windows](https://github.com/real-habibul/screenrecord/actions/runs/45182475346)

@@ -150,6 +150,21 @@ fn read_bounded(mut reader: impl Read, capacity: usize, tail: bool) -> Vec<u8> {
     result
 }
 
+fn capture_status(
+    child: &mut Child,
+    elapsed: Duration,
+    timeout: Duration,
+) -> Result<Option<bool>, String> {
+    match child.try_wait().map_err(|error| error.to_string())? {
+        Some(status) => Ok(Some(status.success())),
+        None if elapsed >= timeout => Err(format!(
+            "Media tool did not respond within its {:.1}-second time limit.",
+            timeout.as_secs_f64()
+        )),
+        None => Ok(None),
+    }
+}
+
 pub(crate) fn capture(
     command: &mut Command,
     timeout: Duration,
@@ -178,13 +193,10 @@ pub(crate) fn capture(
         if cancel.load(Ordering::Relaxed) {
             break Err("Export cancelled.".to_string());
         }
-        if start.elapsed() > timeout {
-            break Err("Media tool did not respond within its time limit.".to_string());
-        }
-        match child.0.try_wait() {
-            Ok(Some(status)) => break Ok(status.success()),
+        match capture_status(&mut child.0, start.elapsed(), timeout) {
+            Ok(Some(success)) => break Ok(success),
             Ok(None) => thread::sleep(Duration::from_millis(25)),
-            Err(error) => break Err(error.to_string()),
+            Err(error) => break Err(error),
         }
     };
     if result.is_err() {
@@ -742,8 +754,52 @@ impl Encoder {
             ],
         }
     }
+    fn probe_timeout(self) -> Duration {
+        match self {
+            Self::SoftwareMf => Duration::from_secs(30),
+            _ => Duration::from_secs(8),
+        }
+    }
+
     pub(crate) fn is_software(self) -> bool {
         matches!(self, Self::SoftwareMf | Self::SoftwareX264)
+    }
+}
+
+fn probe_encoder(
+    ffmpeg: &Path,
+    encoder: Encoder,
+    spec: VideoSpec,
+    cancel: &AtomicBool,
+    bitrate: Option<u32>,
+) -> Result<(), String> {
+    let mut command = Command::new(ffmpeg);
+    command
+        .args([
+            "-hide_banner",
+            "-v",
+            "error",
+            "-nostdin",
+            "-f",
+            "lavfi",
+            "-i",
+            &format!(
+                "color=c=black:s={}x{}:r={}:d=0.2",
+                spec.width, spec.height, spec.fps
+            ),
+            "-frames:v",
+            "3",
+            "-an",
+        ])
+        .args(encoder.args_for_bitrate(bitrate))
+        .args(["-f", "null", "-"]);
+    let (success, _, diagnostics) = capture(&mut command, encoder.probe_timeout(), cancel)?;
+    if success {
+        Ok(())
+    } else if diagnostics.trim().is_empty() {
+        Err("FFmpeg exited unsuccessfully.".into())
+    } else {
+        Err(diagnostics.trim().chars().take(512).collect())
     }
 }
 
@@ -770,29 +826,7 @@ pub(crate) fn choose_encoder_for_bitrate(
         if cancel.load(Ordering::Relaxed) {
             return Err("Export cancelled.".into());
         }
-        let mut command = Command::new(ffmpeg);
-        command
-            .args([
-                "-hide_banner",
-                "-v",
-                "error",
-                "-nostdin",
-                "-f",
-                "lavfi",
-                "-i",
-                &format!(
-                    "color=c=black:s={}x{}:r={}:d=0.2",
-                    spec.width, spec.height, spec.fps
-                ),
-                "-frames:v",
-                "3",
-                "-an",
-            ])
-            .args(encoder.args_for_bitrate(bitrate))
-            .args(["-f", "null", "-"]);
-        if capture(&mut command, Duration::from_secs(8), cancel)
-            .is_ok_and(|(success, _, _)| success)
-        {
+        if probe_encoder(ffmpeg, encoder, spec, cancel, bitrate).is_ok() {
             return Ok(encoder);
         }
     }
@@ -813,37 +847,21 @@ pub(crate) fn software_encoder_for_bitrate(
     cancel: &AtomicBool,
     bitrate: Option<u32>,
 ) -> Result<Encoder, String> {
-    for encoder in [Encoder::SoftwareMf, Encoder::SoftwareX264] {
+    let mut failures = Vec::new();
+    for (encoder, name) in [
+        (Encoder::SoftwareMf, "h264_mf"),
+        (Encoder::SoftwareX264, "libx264"),
+    ] {
         if cancel.load(Ordering::Relaxed) {
             return Err("Export cancelled.".into());
         }
-        let mut command = Command::new(ffmpeg);
-        command
-            .args([
-                "-hide_banner",
-                "-v",
-                "error",
-                "-nostdin",
-                "-f",
-                "lavfi",
-                "-i",
-                &format!(
-                    "color=c=black:s={}x{}:r={}:d=0.2",
-                    spec.width, spec.height, spec.fps
-                ),
-                "-frames:v",
-                "3",
-                "-an",
-            ])
-            .args(encoder.args_for_bitrate(bitrate))
-            .args(["-f", "null", "-"]);
-        if capture(&mut command, Duration::from_secs(8), cancel)
-            .is_ok_and(|(success, _, _)| success)
-        {
-            return Ok(encoder);
+        match probe_encoder(ffmpeg, encoder, spec, cancel, bitrate) {
+            Ok(()) => return Ok(encoder),
+            Err(_) if cancel.load(Ordering::Relaxed) => return Err("Export cancelled.".into()),
+            Err(reason) => failures.push(format!("{name}: {reason}")),
         }
     }
-    Err(format!("No H.264 encoder accepted {}x{} at {} fps. Choose a smaller output or check the Windows Media Feature Pack.", spec.width, spec.height, spec.fps))
+    Err(format!("No H.264 encoder accepted {}x{} at {} fps. Choose a smaller output or check the Windows Media Feature Pack. {}", spec.width, spec.height, spec.fps, failures.join(" | ")))
 }
 
 #[cfg(test)]
@@ -901,10 +919,83 @@ mod tests {
     }
 
     #[test]
+    fn a_cold_software_mf_probe_can_complete_after_the_hardware_deadline() {
+        let mut command = Command::new(std::env::current_exe().unwrap());
+        command
+            .args(["--exact", "process::tests::progress_fixture_child"])
+            .env("SCREENRECORD_RENDER_PROCESS_FIXTURE", "wait-stdin")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::null());
+        hidden(&mut command);
+        let mut child = ChildGuard::spawn(&mut command).unwrap();
+        let elapsed = Duration::from_secs(10);
+        let mf_timeout = Encoder::SoftwareMf.probe_timeout();
+        assert_eq!(capture_status(&mut child.0, elapsed, mf_timeout), Ok(None));
+        for encoder in [
+            Encoder::Nvidia,
+            Encoder::Intel,
+            Encoder::Amd,
+            Encoder::MediaFoundation,
+            Encoder::SoftwareX264,
+        ] {
+            assert!(capture_status(&mut child.0, elapsed, encoder.probe_timeout()).is_err());
+        }
+        assert!(capture_status(&mut child.0, Duration::from_secs(30), mf_timeout).is_err());
+        drop(child.0.stdin.take());
+        assert!(child.0.wait().unwrap().success());
+        assert_eq!(
+            capture_status(
+                &mut child.0,
+                mf_timeout + Duration::from_millis(25),
+                mf_timeout
+            ),
+            Ok(Some(true))
+        );
+    }
+
+    #[test]
+    fn failed_software_probes_report_each_encoder_diagnostic() {
+        let error = software_encoder(
+            &std::env::current_exe().unwrap(),
+            VideoSpec {
+                width: 320,
+                height: 180,
+                fps: 30,
+            },
+            &AtomicBool::new(false),
+        )
+        .unwrap_err();
+        assert!(error.contains("320x180 at 30 fps"));
+        assert!(error.contains("h264_mf: error:"), "{error}");
+        assert!(error.contains("libx264: error:"), "{error}");
+    }
+
+    #[test]
+    fn cancellation_interrupts_a_pending_software_mf_probe() {
+        let mut command = Command::new(std::env::current_exe().unwrap());
+        command
+            .args(["--exact", "process::tests::progress_fixture_child"])
+            .env("SCREENRECORD_RENDER_PROCESS_FIXTURE", "quiet");
+        let cancel = AtomicBool::new(false);
+        let result = thread::scope(|scope| {
+            scope.spawn(|| {
+                thread::sleep(Duration::from_millis(100));
+                cancel.store(true, Ordering::Relaxed);
+            });
+            capture(&mut command, Encoder::SoftwareMf.probe_timeout(), &cancel)
+        });
+        assert_eq!(result.unwrap_err(), "Export cancelled.");
+    }
+
+    #[test]
     fn progress_fixture_child() {
         let Ok(mode) = std::env::var("SCREENRECORD_RENDER_PROCESS_FIXTURE") else {
             return;
         };
+        if mode == "wait-stdin" {
+            std::io::copy(&mut std::io::stdin().lock(), &mut std::io::sink()).unwrap();
+            return;
+        }
         if mode == "quiet" {
             thread::sleep(Duration::from_secs(3));
             return;
