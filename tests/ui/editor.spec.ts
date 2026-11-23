@@ -1502,12 +1502,29 @@ test('audition restarts at A after natural video ended even when the animation c
     const tap = new AudioWorkletNode(context, 'pcm-tap'); w.__tailPcm = { count: 0, peak: 0, energy: 0 }; tap.port.onmessage = event => { w.__tailPcm.count += event.data.count; w.__tailPcm.energy += event.data.energy; w.__tailPcm.peak = Math.max(w.__tailPcm.peak, event.data.peak) }; w.__audioGains[1].connect(tap); tap.connect(context.destination)
   }, pcmTapSource)
   await page.evaluate(() => {
-    const w = window as any; const source = document.querySelector<HTMLVideoElement>('video[data-track="screen recording"]')!; w.__naturalEnds = 0; w.__tailStarts = 0
+    const w = window as any
+    const source = document.querySelector<HTMLVideoElement>('video[data-track="screen recording"]')!
+    w.__naturalEnds = 0
+    w.__tailStarts = 0
+    w.__tailRequests = 0
+    const time = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'currentTime')!
+    Object.defineProperty(source, 'currentTime', {
+      configurable: true,
+      get() { return time.get!.call(source) },
+      set(value: number) {
+        if (Math.abs(value - 11.6) < .001) w.__tailRequests++
+        time.set!.call(source, value)
+      },
+    })
     source.addEventListener('ended', () => w.__naturalEnds++); source.addEventListener('seeked', () => { if (Math.abs(source.currentTime - 11.6) < .001) w.__tailStarts++ })
     const frame = window.requestAnimationFrame; window.requestAnimationFrame = callback => frame(now => { setTimeout(() => callback(now), 120) })
   })
   await page.getByRole('button', { name: 'Play preview', exact: true }).click(); await expect.poll(() => page.evaluate(() => (window as any).__naturalEnds), { timeout: 10_000 }).toBeGreaterThanOrEqual(2); await expect.poll(() => page.evaluate(() => (window as any).__tailStarts)).toBeGreaterThanOrEqual(3)
-  await page.getByRole('button', { name: 'Pause preview', exact: true }).click(); const count = await page.evaluate(() => (window as any).__tailStarts); await page.waitForTimeout(300); expect(await page.evaluate(() => (window as any).__tailStarts)).toBe(count); expect(await page.locator('video[data-track="screen recording"]').evaluate(element => element.paused)).toBe(true)
+  await page.getByRole('button', { name: 'Pause preview', exact: true }).click()
+  const count = await page.evaluate(() => (window as any).__tailRequests)
+  await page.waitForTimeout(300)
+  expect(await page.evaluate(() => (window as any).__tailRequests)).toBe(count)
+  expect(await page.locator('video[data-track="screen recording"]').evaluate(element => element.paused)).toBe(true)
   const retained = await page.evaluate(() => { const pcm = (window as any).__tailPcm; return { ...pcm, rms: Math.sqrt(pcm.energy / pcm.count) } }); expect(retained.count).toBeGreaterThan(48_000); expect(retained.peak).toBeCloseTo(.12, 4); expect(retained.rms).toBeGreaterThan(.1)
   writeEvidence('artifacts/audition-stage3/loop-positive-pcm.json', retained)
 })
