@@ -4,9 +4,10 @@ import { listen, type UnlistenFn } from '@tauri-apps/api/event'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { open, save } from '@tauri-apps/plugin-dialog'
 import { command, desktop, errorText } from './api'
-import { addZoom, aspectRatio, clamp, even, normalizeEdits, timeLabel } from './editing'
-import type { AppInfo, AppearanceSettings, CaptureApp, CaptureDevices, ExportOptions, ExportProgress, MusicClip, MaskTrackingProgress, Project, ProjectSummary, RecordedAudioSource, RecordingError, RecordingOptions, RecordingState, Redaction, SavedEdits, SubtitleCue, TrackSelection, TranscriptionOptions, TranscriptionProgress, WhatsAppExportPlan } from './types'
+import { addZoom, clamp, normalizeEdits, timeLabel } from './editing'
+import type { AppInfo, AppearanceSettings, CaptureApp, CaptureDevices, ExportProgress, MusicClip, MaskTrackingProgress, Project, ProjectSummary, RecordedAudioSource, RecordingError, RecordingOptions, RecordingState, Redaction, SavedEdits, SubtitleCue, TrackSelection, TranscriptionOptions, TranscriptionProgress } from './types'
 import { applyAppearance } from './appearance'
+import { useVideoExport } from './video-export'
 import { reframeAt, setReframeKey } from './reframe'
 import { chooseApp, emptyAppSelection, filterApps, reconcileAppSelection } from './capture-apps'
 import { projectedSubtitle } from './subtitle-projection'
@@ -147,18 +148,6 @@ let recordingStartRequest = 0
 let recordingRevision = 0
 type RecordingTerminal = { project?: Project; error?: string }
 let pendingRecordingStart: { request: number; terminals: Map<string, RecordingTerminal> } | null = null
-const exportProgress = ref<ExportProgress | null>(null)
-const exportStatusError = ref('')
-let exportTargetPath: string | null = null
-let exportAttempt = 0
-function acceptExportProgress(value: ExportProgress | null, event = false) {
-  if (!value) return
-  const previous = exportProgress.value
-  if (event && value.state === 'running' && previous?.state !== 'running' && busy.value !== 'Starting export') { exportAttempt++; exportTargetPath = value.outputPath }
-  if (exportTargetPath && value.outputPath !== exportTargetPath) return
-  if (!event && previous?.outputPath === value.outputPath && previous.state !== 'running' && value.state === 'running') return
-  exportStatusError.value = ''; exportProgress.value = value
-}
 function rememberedRecordingOptions(): Omit<RecordingOptions, 'sourceId'> {
   try {
     const saved = JSON.parse(localStorage.getItem('screenrecord-recording-options') ?? '{}')
@@ -170,22 +159,7 @@ const sourceKind = ref<'monitor' | 'window' | 'apps'>('monitor')
 const appAudioScope = ref<'system' | 'application'>('system')
 const appSelection = ref(emptyAppSelection())
 const appSearch = ref('')
-const exportOptions = ref<ExportOptions>({ outputPath: '', resolution: '1080p', fps: 30 })
-const exportPreset = ref<'standard' | 'whatsapp'>('standard')
-const exportDialogOpen = ref(false)
-const whatsappPlan = ref<WhatsAppExportPlan | null>(null)
-const whatsappPlanSnapshot = ref('')
-const exportPlanLoading = ref(false)
-const exportPlanError = ref('')
-const choosingOutput = ref(false)
-let exportSession = 0
-let exportPlanRequest = 0
-let outputRequest = 0
-const validWhatsAppPlan = computed(() => !!whatsappPlan.value && !exportPlanLoading.value && !dirty.value && whatsappPlanSnapshot.value === savedSnapshot.value)
-const exportDimensions = computed(() => { if (!project.value) return ''; if (exportPreset.value === 'whatsapp') return validWhatsAppPlan.value ? `${whatsappPlan.value!.width} x ${whatsappPlan.value!.height}` : 'Auto size'; const ratio = aspectRatio(project.value); const edge = exportOptions.value.resolution === '2160p' ? 2160 : exportOptions.value.resolution === '1440p' ? 1440 : 1080; return `${even(edge * Math.max(1, ratio))} x ${even(edge * Math.max(1, 1 / ratio))}` })
-const completedExportSize = computed(() => exportProgress.value?.state === 'completed' && typeof exportProgress.value.outputBytes === 'number' && Number.isFinite(exportProgress.value.outputBytes) && exportProgress.value.outputBytes >= 0 ? `${(exportProgress.value.outputBytes / 1_000_000).toFixed(2)} MB` : '')
 const recordDialog = ref<HTMLDialogElement>()
-const exportDialog = ref<HTMLDialogElement>()
 const preview = ref<InstanceType<typeof Preview>>()
 const inspector = ref<InstanceType<typeof Inspector>>()
 const theme = ref(localStorage.getItem('screenrecord-theme') ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
@@ -197,7 +171,25 @@ const selectedSource = computed(() => (sourceKind.value === 'apps' ? selectedApp
 const sourceSummary = computed(() => selectedSource.value ? sourceKind.value === 'apps' ? `${selectedApp.value?.name}: ${selectedSource.value.title}` : selectedSource.value.title : sourceKind.value === 'apps' && selectedApp.value ? 'Choose an app window' : 'Select a source')
 const editSnapshot = () => project.value ? `{"name":${JSON.stringify(project.value.name)},"edits":${editsSnapshot.value}}` : ''
 const dirty = computed(() => editsPending.value || editSnapshot() !== savedSnapshot.value)
-const exporting = computed(() => exportProgress.value?.state === 'running')
+const {
+  exportDialog, exportDialogOpen, exportOptions, exportPreset,
+  exportProgress, exportStatusError, exporting, completedExportSize,
+  validWhatsAppPlan, exportDimensions, exportPlanLoading, exportPlanError, choosingOutput,
+  openExport: prepareExportDialog, exportClosed, closeExportDialog, loadWhatsAppPlan, chooseOutput,
+  startExport, cancelExport, acceptExportProgress, progressRevision, pollExport,
+} = useVideoExport({
+  project, busy, error, dirty, savedSnapshot, persist, showError,
+  async prepareProject() {
+    await stopAudioAnalysis()
+    await persist()
+  },
+  canStart() {
+    stopCorrection()
+    if (!unreviewedMasks.value.length) return true
+    showError('Review tracked masks before exporting.')
+    return false
+  },
+})
 const locked = computed(() => loading.value || closing.value || opening.value || !!busy.value || trialBusy.value || countdown.value !== null || recording.value.active || exporting.value || transcribing.value || trackingMask.value)
 let autoSaveTimer: ReturnType<typeof setTimeout> | undefined
 let polling: ReturnType<typeof setInterval> | undefined
@@ -503,14 +495,14 @@ async function initialize() {
   loading.value = true; error.value = ''; initializationError.value = ''
   const request = ++projectListRequest
   const revision = recordingRevision
-  const exportRevision = exportAttempt
+  const exportRevision = progressRevision()
   try {
     const results = await Promise.allSettled([command<AppInfo>('get_app_info'), command<ProjectSummary[]>('list_projects'), command<RecordingState>('get_recording_state'), command<ExportProgress | null>('get_export_progress'), command<string | null>('get_stop_shortcut'), command<string[]>('get_recovery_issues')])
     const [appInfo, list, state, progress, shortcut, issues] = results
     if (appInfo.status === 'fulfilled') info.value = appInfo.value
     if (list.status === 'fulfilled' && request === projectListRequest) projects.value = list.value
     if (state.status === 'fulfilled' && revision === recordingRevision) recording.value = state.value
-    if (progress.status === 'fulfilled' && exportRevision === exportAttempt) acceptExportProgress(progress.value)
+    if (progress.status === 'fulfilled' && exportRevision === progressRevision()) acceptExportProgress(progress.value)
     if (shortcut.status === 'fulfilled') stopShortcut.value = shortcut.value
     if (issues.status === 'fulfilled') recoveryIssues.value = issues.value
     initializationError.value = results.filter(result => result.status === 'rejected').map(result => errorText(result.reason)).join('\n')
@@ -695,11 +687,7 @@ async function poll() {
       if (revision !== recordingRevision) return
       if (projects.value.some(item => item.id === previousProjectId)) await openProject(previousProjectId, true)
     }
-    if (exporting.value && busy.value !== 'Starting export') {
-      const attempt = exportAttempt
-      try { const progress = await command<ExportProgress | null>('get_export_progress'); if (attempt === exportAttempt && busy.value !== 'Starting export') acceptExportProgress(progress) }
-      catch (failure) { if (attempt === exportAttempt && exporting.value && busy.value !== 'Starting export') exportStatusError.value = `Status check failed: ${errorText(failure)} Retrying automatically.` }
-    }
+    if (exporting.value) await pollExport()
     if (trackingMask.value) acceptMaskTracking(await command<MaskTrackingProgress | null>('get_mask_tracking_progress'))
     if (transcribing.value) acceptTranscription(await command<TranscriptionProgress | null>('get_transcription_progress'))
   } catch (e) { if (revision === recordingRevision && (recording.value.active || exporting.value || transcribing.value || trackingMask.value)) showError(e) }
@@ -896,72 +884,13 @@ async function importSrt() {
     notice.value = `Imported ${cues.length} subtitle cues. SRT has cue timing only; words are not timed.`
   } catch (failure) { showError(failure) } finally { busy.value = '' }
 }
-async function openExport() {
+function openExport() {
   if (!project.value || locked.value) return
   stopCorrection()
   if (unreviewedMasks.value.length) { selectRegion(unreviewedMasks.value[0].id); showError('Review tracked masks before exporting. Use Mark tracking reviewed after inspecting each region.'); return }
-  busy.value = 'Preparing export'; error.value = ''; preview.value?.pause()
-  try { await stopAudioAnalysis(); await persist(); exportSession++; exportAttempt++; exportOptions.value.fps = project.value.fps; exportOptions.value.outputPath = ''; exportProgress.value = null; exportStatusError.value = ''; exportTargetPath = null; exportDialog.value?.showModal(); exportDialogOpen.value = true } catch (e) { showError(e) }
-  finally { busy.value = '' }
+  preview.value?.pause()
+  return prepareExportDialog()
 }
-function exportClosed() { exportDialogOpen.value = false; exportSession++; exportPlanRequest++; outputRequest++; whatsappPlan.value = null; whatsappPlanSnapshot.value = ''; exportPlanLoading.value = false; exportPlanError.value = ''; choosingOutput.value = false }
-function closeExportDialog() { exportDialog.value?.close(); exportClosed() }
-watch(() => project.value, (current, previous) => { if (current !== previous && exportDialogOpen.value) closeExportDialog() })
-watch([exportPreset, exportDialogOpen], () => { if (exportDialogOpen.value && exportPreset.value === 'whatsapp') void loadWhatsAppPlan(); else { exportPlanRequest++; whatsappPlan.value = null; exportPlanLoading.value = false; exportPlanError.value = '' } })
-async function loadWhatsAppPlan() {
-  const current = project.value; const session = exportSession; const request = ++exportPlanRequest
-  if (!current || !exportDialogOpen.value || exportPreset.value !== 'whatsapp') return
-  const matches = () => request === exportPlanRequest && session === exportSession && current === project.value && exportDialogOpen.value && exportPreset.value === 'whatsapp'
-  whatsappPlan.value = null; whatsappPlanSnapshot.value = ''; exportPlanError.value = ''; exportPlanLoading.value = true
-  try {
-    await persist(); if (!matches()) return
-    const snapshot = savedSnapshot.value
-    const plan = await command<WhatsAppExportPlan>('get_whatsapp_export_plan', { id: current.id })
-    if (!matches()) return
-    if (snapshot !== savedSnapshot.value || dirty.value) throw new Error('The project changed. Calculate the export size again.')
-    if (![plan.width, plan.height, plan.videoBitrate, plan.audioBitrate].every(value => Number.isFinite(value) && value > 0)) throw new Error('Export dimensions are unavailable. Try calculating the size again.')
-    whatsappPlan.value = plan; whatsappPlanSnapshot.value = snapshot
-  } catch (failure) { if (matches()) exportPlanError.value = errorText(failure) }
-  finally { if (matches()) exportPlanLoading.value = false }
-}
-async function chooseOutput() {
-  const current = project.value; const session = exportSession; const preset = exportPreset.value
-  if (!current || !exportDialogOpen.value || choosingOutput.value || busy.value || exporting.value) return
-  const request = ++outputRequest; choosingOutput.value = true
-  try {
-    const name = current.name.replace(/[<>:"/\\|?*]/g, '_')
-    const path = await save({ defaultPath: `${name}${preset === 'whatsapp' ? '-whatsapp' : ''}.mp4`, filters: [{ name: 'MP4 video', extensions: ['mp4'] }] })
-    if (path && request === outputRequest && session === exportSession && current === project.value && preset === exportPreset.value && exportDialogOpen.value) exportOptions.value.outputPath = path.toLowerCase().endsWith('.mp4') ? path : `${path}.mp4`
-  } catch (e) { if (session === exportSession) showError(e) }
-  finally { if (request === outputRequest) choosingOutput.value = false }
-}
-async function startExport() {
-  const current = project.value; const session = exportSession; const preset = exportPreset.value; const path = exportOptions.value.outputPath
-  if (!current || !path || exporting.value || busy.value || choosingOutput.value || !exportDialogOpen.value || preset === 'whatsapp' && !validWhatsAppPlan.value) return
-  stopCorrection(); if (unreviewedMasks.value.length) { showError('Review tracked masks before exporting.'); return }
-  const attempt = ++exportAttempt
-  busy.value = 'Starting export'; error.value = ''
-  let admitted = false
-  try {
-    await stopAudioAnalysis()
-    await persist()
-    if (current !== project.value || session !== exportSession || !exportDialogOpen.value || preset !== exportPreset.value || path !== exportOptions.value.outputPath) return
-    if (preset === 'whatsapp' && !validWhatsAppPlan.value) { exportPlanError.value = 'The project changed. Calculate the export size again.'; return }
-    const options: ExportOptions = preset === 'whatsapp' ? { outputPath: path, preset, resolution: 'auto', fps: 30 } : { ...exportOptions.value, preset: 'standard' }
-    exportTargetPath = path; exportProgress.value = { state: 'running', progress: 0, outputPath: path, error: null }
-    await command('export_project', { id: current.id, options })
-    admitted = true
-    if (attempt !== exportAttempt) return
-    if (busy.value === 'Starting export') busy.value = ''
-    const progress = await command<ExportProgress | null>('get_export_progress')
-    if (attempt === exportAttempt) acceptExportProgress(progress)
-  } catch (e) {
-    if (attempt !== exportAttempt) return
-    if (admitted) { if (exportProgress.value?.state === 'running') exportStatusError.value = `Export started. Status check failed: ${errorText(e)} Retrying status automatically.` }
-    else { if (exportProgress.value?.state === 'running') exportProgress.value = { state: 'failed', progress: exportProgress.value.progress, outputPath: path, error: errorText(e) }; showError(e) }
-  } finally { if (attempt === exportAttempt && busy.value === 'Starting export') busy.value = '' }
-}
-async function cancelExport() { if (busy.value === 'Starting export') return; try { await command('cancel_export') } catch (e) { showError(e) } }
 async function reveal(path: string) { try { await command('reveal_file', { path }) } catch (e) { showError(e) } }
 function keyboard(event: KeyboardEvent) {
   const target = event.target as HTMLElement

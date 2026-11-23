@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test'
 import { execFileSync } from 'node:child_process'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
+import { serveMedia } from './fixtures/media'
 
 const directory = path.resolve('artifacts/volume-stage4')
 const audioFixture = path.join(directory, 'constant.wav')
@@ -65,10 +66,7 @@ test('live preview schedules volume once, applies edits and rollback, and reanch
   const component = await (await page.request.get('/src/components/Preview.vue')).text(); const vueModule = component.match(/from\s+["']([^"']+\/vue\.js[^"']*)["']/)?.[1]; expect(vueModule).toBeTruthy()
   const audioModule = component.match(/from\s+["']([^"']*\/preview-audio\.ts[^"']*)["']/)?.[1]
   expect(audioModule).toBeTruthy()
-  for (const [name, file, contentType] of [['volume-source.mp4', videoFixture, 'video/mp4'], ['volume-source.wav', audioFixture, 'audio/wav']]) await page.route(`**/${name}`, route => {
-    const body = readFileSync(file); const range = route.request().headers().range?.match(/bytes=(\d+)-(\d*)/); const start = range ? Number(range[1]) : 0; const end = range?.[2] ? Math.min(Number(range[2]), body.length - 1) : body.length - 1
-    return route.fulfill({ status: range ? 206 : 200, contentType, headers: { 'Accept-Ranges': 'bytes', 'Content-Length': String(end - start + 1), ...(range ? { 'Content-Range': `bytes ${start}-${end}/${body.length}` } : {}) }, body: body.subarray(start, end + 1) })
-  })
+  for (const [name, file, contentType] of [['volume-source.mp4', videoFixture, 'video/mp4'], ['volume-source.wav', audioFixture, 'audio/wav']]) await page.route(`**/${name}`, route => serveMedia(route, file, contentType))
   await page.addInitScript(({ delayFirstVideo }) => {
     const w = window as any; w.__contexts = []; w.__mixers = []; w.__schedules = 0; w.__gains = []; w.__audioEpoch = 0; w.__scheduleEvents = []; w.__transportEvents = []
     const mediaState = () => [...document.querySelectorAll('video,audio')].map(element => ({ track: (element as HTMLElement).dataset.track, time: (element as HTMLMediaElement).currentTime, paused: (element as HTMLMediaElement).paused, seeking: (element as HTMLMediaElement).seeking }))

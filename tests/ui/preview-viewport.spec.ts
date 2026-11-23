@@ -1,10 +1,12 @@
 import { expect, test, type Page } from '@playwright/test'
 import { execFileSync } from 'node:child_process'
-import { existsSync, mkdirSync, readFileSync } from 'node:fs'
+import { existsSync, mkdirSync } from 'node:fs'
 import path from 'node:path'
 import type { Project } from '../../src/types'
 
-const fixture = path.resolve('artifacts/ui/source.mp4')
+import { editorVideo, prepareEditorVideo, serveMedia } from './fixtures/media'
+
+const fixture = editorVideo
 const audioFixture = path.resolve('artifacts/ui/preview-release-audio.wav')
 const sparseFixture = path.resolve('artifacts/ui/preview-sparse-vfr.mp4')
 const clicksFixture = path.resolve('artifacts/ui/preview-clicks.mp4')
@@ -13,7 +15,7 @@ test.beforeAll(() => {
   const bundled = path.resolve('src-tauri/resources/ffmpeg.exe')
   const engine = process.env.SCREENRECORD_FFMPEG ?? (existsSync(bundled) ? bundled : 'ffmpeg')
   const encoder = process.platform === 'win32' ? ['-c:v', 'h264_mf', '-hw_encoding', '0', '-b:v', '4000k'] : ['-c:v', 'libx264', '-preset', 'ultrafast']
-  if (!existsSync(fixture)) execFileSync(engine, ['-hide_banner', '-loglevel', 'error', '-f', 'lavfi', '-i', 'testsrc2=size=960x540:rate=30', '-t', '12', ...encoder, '-pix_fmt', 'yuv420p', '-movflags', '+faststart', fixture], { windowsHide: true })
+  prepareEditorVideo(engine, encoder)
   if (!existsSync(audioFixture)) execFileSync(engine,['-hide_banner','-loglevel','error','-f','lavfi','-i','sine=frequency=997:sample_rate=48000','-t','12','-ac','2','-c:a','pcm_f32le',audioFixture],{windowsHide:true})
   if (!existsSync(sparseFixture)) execFileSync(engine, ['-hide_banner', '-loglevel', 'error', '-f', 'lavfi', '-i', 'color=c=blue:size=320x180:rate=10:duration=4', '-vf', "select='eq(n,0)+eq(n,1)+eq(n,10)+eq(n,11)+eq(n,30)'", '-fps_mode', 'vfr', ...encoder, '-pix_fmt', 'yuv420p', '-movflags', '+faststart', sparseFixture], { windowsHide: true })
   if (!existsSync(clicksFixture)) execFileSync(engine, ['-hide_banner', '-loglevel', 'error', '-f', 'lavfi', '-i', 'color=c=black:size=960x540:rate=30:duration=12', ...encoder, '-pix_fmt', 'yuv420p', '-movflags', '+faststart', clicksFixture], { windowsHide: true })
@@ -27,18 +29,8 @@ async function harness(page: Page, sources: Partial<RecordedSources> = {}) {
   const componentModule = await (await page.request.get('/src/components/Preview.vue')).text()
   const vueModule = componentModule.match(/from\s+["']([^"']+\/vue\.js[^"']*)["']/)?.[1]
   expect(vueModule).toBeTruthy()
-  await page.route('**/viewport-audio.wav', route => {
-    const body = readFileSync(audioFixture); const range = route.request().headers().range?.match(/bytes=(\d+)-(\d*)/)
-    const start = range ? Number(range[1]) : 0; const end = range?.[2] ? Math.min(Number(range[2]), body.length - 1) : body.length - 1
-    return route.fulfill({ status: range ? 206 : 200, contentType: 'audio/wav', headers: { 'Accept-Ranges': 'bytes', 'Content-Length': String(end - start + 1), ...(range ? { 'Content-Range': `bytes ${start}-${end}/${body.length}` } : {}) }, body: body.subarray(start, end + 1) })
-  })
-  await page.route('**/viewport-source.mp4', route => {
-    const body = readFileSync(fixture)
-    const range = route.request().headers().range?.match(/bytes=(\d+)-(\d*)/)
-    const start = range ? Number(range[1]) : 0
-    const end = range?.[2] ? Math.min(Number(range[2]), body.length - 1) : body.length - 1
-    return route.fulfill({ status: range ? 206 : 200, contentType: 'video/mp4', headers: { 'Accept-Ranges': 'bytes', 'Content-Length': String(end - start + 1), ...(range ? { 'Content-Range': `bytes ${start}-${end}/${body.length}` } : {}) }, body: body.subarray(start, end + 1) })
-  })
+  await page.route('**/viewport-audio.wav', route => serveMedia(route, audioFixture, 'audio/wav'))
+  await page.route('**/viewport-source.mp4', route => serveMedia(route, fixture, 'video/mp4'))
   await page.route('**/viewport-harness', route => route.fulfill({ contentType: 'text/html', body: `<!doctype html><html><head><link rel="stylesheet" href="/src/style.css"><style>body{min-width:0}#fixture{display:flex;flex-direction:column;height:600px;width:900px;max-width:100vw}</style></head><body><main id="fixture"></main><script type="module">
     import { createApp, reactive, h, ref } from '${vueModule}';
     import Preview from '/src/components/Preview.vue';
@@ -375,10 +367,7 @@ test('presentation scheduler preserves timed privacy transitions even with no vi
 
 async function clickPreview(page: Page) {
   await harness(page)
-  await page.route('**/viewport-clicks.mp4', route => {
-    const body = readFileSync(clicksFixture); const range = route.request().headers().range?.match(/bytes=(\d+)-(\d*)/); const start = range ? Number(range[1]) : 0; const end = range?.[2] ? Math.min(Number(range[2]), body.length - 1) : body.length - 1
-    return route.fulfill({ status: range ? 206 : 200, contentType: 'video/mp4', headers: { 'Accept-Ranges': 'bytes', 'Content-Length': String(end - start + 1), ...(range ? { 'Content-Range': `bytes ${start}-${end}/${body.length}` } : {}) }, body: body.subarray(start, end + 1) })
-  })
+  await page.route('**/viewport-clicks.mp4', route => serveMedia(route, clicksFixture, 'video/mp4'))
   await page.evaluate(() => { const f = (window as any).fixture; f.project.screenPath = '/viewport-clicks.mp4'; Object.assign(f.project.edits, { trimStart: 0, trimEnd: 12, videoClips: [], padding: 96, cornerRadius: 40, showCursor: true, showClicks: true, cursorSize: 2, cursorSmoothing: 1, zooms: [] }); f.project.cursor = [{ time: 0, x: .25, y: .5, pressed: false, visible: true, buttons: 0 }, { time: 1, x: .25, y: .5, pressed: true, visible: true, buttons: 1 }, { time: 1.05, x: .25, y: .5, pressed: false, visible: true, buttons: 0 }, { time: 1.1, x: .5, y: .5, pressed: true, visible: true, buttons: 2 }, { time: 1.15, x: .5, y: .5, pressed: false, visible: true, buttons: 0 }, { time: 1.2, x: .75, y: .5, pressed: true, visible: true }, { time: 1.21, x: .9, y: .6, pressed: true, visible: true }] })
   await expect(page.getByText('Loading video...', { exact: true })).toBeHidden()
 }
@@ -469,11 +458,7 @@ test('camera visibility follows its own clock and accepts the frame active befor
 
 test('paused fractional seeks present the same CFR and sparse VFR frame without waiting for another frame', async ({ page }) => {
   await harness(page)
-  await page.route('**/viewport-sparse.mp4', route => {
-    const body = readFileSync(sparseFixture); const range = route.request().headers().range?.match(/bytes=(\d+)-(\d*)/)
-    const start = range ? Number(range[1]) : 0; const end = range?.[2] ? Math.min(Number(range[2]), body.length - 1) : body.length - 1
-    return route.fulfill({ status: range ? 206 : 200, contentType: 'video/mp4', headers: { 'Accept-Ranges': 'bytes', 'Content-Length': String(end - start + 1), ...(range ? { 'Content-Range': `bytes ${start}-${end}/${body.length}` } : {}) }, body: body.subarray(start, end + 1) })
-  })
+  await page.route('**/viewport-sparse.mp4', route => serveMedia(route, sparseFixture, 'video/mp4'))
   const timings: number[] = []
   for (const sparse of [false, true]) {
     await page.evaluate(sparse => { const f = (window as any).fixture; f.project.fps = 60; f.project.width = sparse ? 320 : 960; f.project.height = sparse ? 180 : 540; f.project.screenPath = sparse ? '/viewport-sparse.mp4' : '/viewport-source.mp4'; f.project.cameraPath = f.project.screenPath; f.project.cameraOffsetSeconds = .017; f.project.edits.camera.enabled = true; f.project.edits.camera.layout = 'split' }, sparse)
@@ -516,11 +501,7 @@ for (const allowed of [true, false]) test(`cross-origin video ${allowed ? 'rende
   const pageOrigin = new URL(page.url()).origin
   const foreignSource = new URL('/foreign-source.mp4', pageOrigin)
   foreignSource.hostname = foreignSource.hostname === 'localhost' ? '127.0.0.1' : 'localhost'
-  await page.route(foreignSource.href, route => {
-    const body = readFileSync(fixture); const range = route.request().headers().range?.match(/bytes=(\d+)-(\d*)/)
-    const start = range ? Number(range[1]) : 0; const end = range?.[2] ? Math.min(Number(range[2]), body.length - 1) : body.length - 1
-    return route.fulfill({ status: range ? 206 : 200, contentType: 'video/mp4', headers: { 'Accept-Ranges': 'bytes', 'Content-Length': String(end - start + 1), ...(range ? { 'Content-Range': `bytes ${start}-${end}/${body.length}` } : {}), 'Access-Control-Allow-Origin': allowRequests ? pageOrigin : 'https://denied.invalid' }, body: body.subarray(start, end + 1) })
-  })
+  await page.route(foreignSource.href, route => serveMedia(route, fixture, 'video/mp4', allowRequests ? pageOrigin : 'https://denied.invalid'))
   await page.evaluate(source => { (window as any).fixture.project.screenPath = source }, foreignSource.href)
   expect(await page.locator('video').getAttribute('crossorigin')).toBe('anonymous')
   if (allowed) {

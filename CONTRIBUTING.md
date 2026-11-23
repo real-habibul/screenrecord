@@ -59,7 +59,7 @@ Buat branch di fork Anda, lalu buka pull request ke repositori Screenrecord. Jel
 | Transkripsi lokal dan cloud | [crates/transcribe](crates/transcribe) |
 | Perintah Tauri dan integrasi perekaman | [src-tauri/src/app.rs](src-tauri/src/app.rs) |
 | Preview dan interaksi di kanvas | [src/components/Preview.vue](src/components/Preview.vue) |
-| Dialog, preset, dan status ekspor video | [src/App.vue](src/App.vue) |
+| Dialog, preset, dan status ekspor video | [src/video-export.ts](src/video-export.ts) |
 | Tes editor di browser | [tests/ui](tests/ui) |
 
 Perubahan pada format proyek atau pesan antara frontend dan backend perlu mengikuti [kontrak proyek dan IPC](docs/project-contract.md). Daftar panduan dan laporan versi tersedia di [indeks dokumentasi](docs/README.md).
