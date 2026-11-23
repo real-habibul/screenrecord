@@ -34,6 +34,8 @@ Tes browser memakai Playwright dan Chrome. Jika lokasi instalasinya berbeda dari
 .\scripts\verify.ps1
 ```
 
+Untuk menguji satu kelompok saja, jalankan `.\scripts\verify.ps1 -Suite Editor` atau `.\scripts\verify.ps1 -Suite Native`. GitHub menampilkan hasil kedua kelompok secara terpisah dan membangun installer setelah keduanya lulus.
+
 Untuk membuat installer sekaligus memeriksa isinya, jalankan kedua perintah berikut. Pemeriksaan paket memerlukan 7-Zip. Installer dan berkas SHA-256 akan tersedia di `target\release\bundle\nsis\`.
 
 ```powershell

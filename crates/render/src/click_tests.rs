@@ -112,9 +112,10 @@ fn neighborhood(pixels: &[u8], width: u32, x: f64, y: f64, kind: usize) -> bool 
     })
 }
 
-fn centered_ring(pixels: &[u8], width: u32, x: f64, y: f64, radius: f64, kind: usize) {
+fn centered_ring(pixels: &[u8], width: u32, x: f64, y: f64, radius: f64, kind: usize) -> u8 {
     let height = pixels.len() / (width as usize * 3);
     let extent = radius * 2.5 + 10.0;
+    let mut peak_channel = 0;
     let mut points = Vec::new();
     for py in (y - extent).max(0.0) as usize..((y + extent).ceil() as usize).min(height) {
         for px in (x - extent).max(0.0) as usize..((x + extent).ceil() as usize).min(width as usize)
@@ -136,6 +137,7 @@ fn centered_ring(pixels: &[u8], width: u32, x: f64, y: f64, radius: f64, kind: u
                 _ => p.iter().all(|v| *v > 15) && p[0].abs_diff(p[2]) < 8,
             };
             if colored {
+                peak_channel = peak_channel.max(p[0].max(p[1]).max(p[2]));
                 points.push((px as f64 + 0.5, py as f64 + 0.5));
             }
         }
@@ -163,7 +165,7 @@ fn centered_ring(pixels: &[u8], width: u32, x: f64, y: f64, radius: f64, kind: u
                 points
                     .iter()
                     .any(|p| (p.0 - target.0).abs() <= 3.0 && (p.1 - target.1).abs() <= 3.0),
-                "Missing ring quadrant {dx},{dy}, factor{factor}, center{x},{y}"
+                "Missing ring quadrant {dx},{dy}, factor{factor}, center{x},{y}, radius{radius}, kind{kind}"
             );
         }
     }
@@ -171,6 +173,7 @@ fn centered_ring(pixels: &[u8], width: u32, x: f64, y: f64, radius: f64, kind: u
         "Ring kind{kind}: expected center({x:.2},{y:.2}), measured({:.2},{:.2}), radius{radius:.2}",
         center.0, center.1
     );
+    peak_channel
 }
 
 #[test]
@@ -426,6 +429,47 @@ fn click_rings_stay_inside_zoomed_cropped_split_foreground_and_leave_blur_clean(
     );
 }
 
+fn lossless_click_frames(ffmpeg: &Path, project: &Project, directory: &Path) -> String {
+    let output = directory.join("click-geometry.mkv");
+    let mut options = options(directory, "click-geometry.mp4");
+    options.fps = 60;
+    let cancel = AtomicBool::new(false);
+    let graph = graph::RenderGraph::prepare(project, &options, ffmpeg, directory, &cancel).unwrap();
+    let chunks = graph.chunks(graph::MAX_CHUNK_FRAMES).unwrap();
+    let [chunk] = chunks.as_slice() else {
+        panic!("The synthetic click timeline must fit in one chunk");
+    };
+    let production = graph
+        .video_command(
+            project,
+            &options,
+            ffmpeg,
+            process::Encoder::SoftwareMf,
+            *chunk,
+            &cancel,
+        )
+        .unwrap();
+    // Preserve the production inputs, filters and output mapping before the H.264 encoder.
+    run(Command::new(ffmpeg)
+        .current_dir(directory)
+        .args(
+            production
+                .get_args()
+                .take_while(|arg| *arg != std::ffi::OsStr::new("-an")),
+        )
+        .args([
+            "-an",
+            "-frames:v",
+            &chunk.frames.to_string(),
+            "-c:v",
+            "ffv1",
+            "-pix_fmt",
+            "yuv420p",
+        ])
+        .arg(&output));
+    output.to_string_lossy().into_owned()
+}
+
 #[test]
 fn click_ring_centroids_stay_fixed_during_growth_and_fade_at_size_limits() {
     let Some(ffmpeg) = engine() else {
@@ -446,18 +490,13 @@ fn click_ring_centroids_stay_fixed_during_growth_and_fade_at_size_limits() {
     ];
     for size in [0.5, 4.0] {
         project.edits.cursor_size = size;
-        let output = render_clicks(
-            &ffmpeg,
-            &project,
-            &format!("center-size-{size}.mp4"),
-            60,
-            false,
-            900,
-        );
+        let stage = tempfile::tempdir_in(directory.path()).unwrap();
+        let output = lossless_click_frames(&ffmpeg, &project, stage.path());
         for (kind, start) in [(0, 0.1), (1, 0.9)] {
+            let mut previous_peak = None;
             for age in [0.05, 0.15, 0.3] {
                 let pixels = frame(&ffmpeg, &output, ((start + age) * 60.0_f64).round() as u32);
-                centered_ring(
+                let peak = centered_ring(
                     &pixels,
                     1920,
                     960.0,
@@ -465,6 +504,10 @@ fn click_ring_centroids_stay_fixed_during_growth_and_fade_at_size_limits() {
                     (12.0 + 16.0 * age / 0.4) * size,
                     kind,
                 );
+                if let Some(previous) = previous_peak {
+                    assert!(peak < previous, "Ring did not fade at size {size}, age {age}, kind {kind}: {previous} -> {peak}");
+                }
+                previous_peak = Some(peak);
             }
         }
     }

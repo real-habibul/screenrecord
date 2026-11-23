@@ -14,6 +14,42 @@ concurrency:
 
 jobs:
   verify:
+    name: ${{ matrix.suite }} tests
+    runs-on: windows-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [Editor, Native]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Select the Rust version used for this release
+        if: matrix.suite == 'Native'
+        run: rustup show active-toolchain
+      - run: npm ci
+      - name: Prepare pinned media engine
+        shell: pwsh
+        run: ./scripts/prepare-media.ps1
+      - name: Run ${{ matrix.suite }} verification
+        shell: pwsh
+        run: ./scripts/verify.ps1 -Suite ${{ matrix.suite }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: verification-failures-${{ matrix.suite }}
+          path: |
+            test-results/
+            artifacts/ui/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  package:
+    name: Build and inspect Windows installer
+    needs: verify
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
@@ -22,21 +58,15 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-      - name: Select the Rust version used for this release
-        run: rustup show active-toolchain
-      - name: Install frontend dependencies
-        run: npm ci
-      - name: Prepare pinned media engine
+      - run: rustup show active-toolchain
+      - run: npm ci
+      - name: Build unsigned installer
         shell: pwsh
-        run: ./scripts/prepare-media.ps1
-      - name: Verify and build unsigned installer
-        shell: pwsh
-        run: ./scripts/verify.ps1 -BuildInstaller
+        run: ./scripts/verify.ps1 -Suite Installer
       - name: Inspect packaged runtime without installing
         shell: pwsh
         run: ./scripts/inspect-installer.ps1
       - uses: actions/upload-artifact@v4
-        if: success()
         with:
           name: Screenrecord-Windows-x64-unsigned
           path: |
@@ -44,12 +74,3 @@ jobs:
             target/release/bundle/nsis/*.sha256
             artifacts/installer-evidence.json
           retention-days: 14
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: verification-failures
-          path: |
-            test-results/
-            artifacts/ui/
-          if-no-files-found: ignore
-          retention-days: 7
