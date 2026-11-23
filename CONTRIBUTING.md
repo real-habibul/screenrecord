@@ -10,7 +10,7 @@ Contoh rekaman singkat yang dibuat khusus untuk laporan biasanya cukup. Periksa 
 
 ## Menjalankan aplikasi dari sumber
 
-Gunakan Windows 11 x64. Siapkan Node.js 22.12 atau lebih baru beserta npm, Rust stable dengan target `x86_64-pc-windows-msvc`, Visual Studio C++ Build Tools dengan Windows SDK, dan Microsoft Edge WebView2 Runtime. Dari direktori utama repositori, jalankan di PowerShell.
+Gunakan Windows 11 x64. Siapkan Node.js 22.12 atau lebih baru beserta npm, rustup dengan target `x86_64-pc-windows-msvc`, Visual Studio C++ Build Tools dengan Windows SDK, dan Microsoft Edge WebView2 Runtime. Saat Anda menjalankan Cargo, rustup memilih Rust 1.98.0 sesuai dengan versi yang digunakan untuk membangun rilis ini. Dari direktori utama repositori, jalankan di PowerShell.
 
 ```powershell
 npm ci
