@@ -1,0 +1,19 @@
+[package]
+name = "screenrecord-render"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+screenrecord-core = { path = "../core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+png = "0.17"
+tempfile = "3"
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62.2", features = ["Win32_Foundation", "Win32_System_JobObjects", "Win32_System_Threading", "Win32_Security", "Win32_Storage_FileSystem"] }
+
+[[example]]
+name = "render_project"
+path = "examples/render_project.rs"

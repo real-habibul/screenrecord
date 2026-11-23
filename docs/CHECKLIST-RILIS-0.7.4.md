@@ -1,0 +1,28 @@
+# Checklist manual sebelum rilis Screenrecord 0.7.4
+
+## Hasil yang sudah dikonfirmasi
+
+Pengguna melaporkan bahwa Screenrecord 0.7.4 berfungsi saat diuji manual di perangkatnya. Konfigurasi perangkat dan hasil per skenario belum dirinci.
+
+Gunakan installer kandidat yang akan dibagikan dan proyek uji yang boleh dibuang. Catat versi Windows dan WebView2, GPU/driver, monitor, DPI, kamera, mikrofon, perangkat output, dan hasil tiap butir. Untuk kegagalan, simpan waktu kejadian, langkah, pesan persis, dan apakah media atau perubahan terakhir masih dapat dibuka. Gunakan bagian dari rekaman uji yang boleh dibagikan jika diperlukan.
+
+## Alur utama di Windows 11 x64
+
+- [ ] **Pemasangan baru dan pembaruan.** Pasang di Windows 11 bersih sebagai pengguna biasa. Buka, rekam singkat, ekspor MP4, tutup, lalu buka lagi. Pada instalasi 0.7.3 yang memiliki salinan proyek lama, pasang 0.7.4. Pastikan proyek lama terbuka, bisa diedit, tersimpan, dan bisa diekspor. Uji uninstall dan instalasi ulang pada mesin uji. Catat keadaan proyek setelah setiap langkah.
+- [ ] **Frame pertama pada monitor yang sebelumnya gagal.** Pilih monitor yang sama, 1920 × 1080, 30 fps, audio komputer aktif, webcam dan mikrofon mati. Ulangi tiga kali saat desktop diam dan tiga kali saat ada gerakan. Rekam 10 sampai 15 detik, hentikan, dan putar. Setiap percobaan harus membuka proyek miliknya sendiri dan memperlihatkan gambar dari awal. Jika gagal, simpan pesan dan catat berapa lama sampai pesan atau gambar muncul.
+- [ ] **Jendela dan perubahan kondisi monitor.** Ulangi pada sumber jendela, kemudian pada monitor kedua jika tersedia, dengan skala DPI berbeda. Ubah ukuran jendela saat memulai, lalu coba lagi setelah monitor bangun dari tidur. Jika sumber ditutup atau akses ditolak, pastikan aplikasi menjelaskan kegagalannya dan percobaan berikutnya bisa dimulai.
+- [ ] **Kasus edit yang semula macet.** Buka salinan proyek yang dulu bermasalah. Saat diputar, geser volume ke nol lalu naikkan, sembunyikan/tampilkan dan pindahkan kamera. Geser timeline maju dan mundur saat jalan dan saat Pause. Pilih keyframe segera setelah proyek dibuka. Waktu dan gambar harus cocok, preview kembali berjalan, dan perubahan yang disimpan tetap ada setelah dibuka ulang.
+- [ ] **Rekaman panjang pada perangkat nyata.** Mulai dengan 60 menit pada resolusi dan fps yang paling sering digunakan. Jika hendak mendukung sesi mendekati batas 8 jam, ulangi dengan durasi tersebut dan sediakan ruang untuk rekaman serta ekspor. Kamera menghadap tangan. Tepuk sekali di awal, tengah, dan menjelang akhir agar gerak tangan bisa dibandingkan dengan suara mikrofon. Sertakan video uji dengan kilatan dan bunyi serempak untuk audio komputer. Catat selisih di ketiga titik pada preview dan MP4. Periksa apakah selisih membesar, ada bunyi putus, atau gambar berhenti. Catat CPU, RAM dan ruang kosong di awal dan akhir.
+- [ ] **Perangkat tambahan dan Pause/Resume.** Uji mikrofon, audio komputer dan webcam bersama. Coba Pause/Resume dua kali. Ulangi dengan webcam sibuk atau mikrofon dicabut. Periksa pesan, durasi, bagian rekaman yang berhasil disimpan dan apakah perangkat bisa dipakai lagi pada sesi baru. Di MP4, bagian saat Pause harus terpotong dan suara kembali sesuai gambar.
+- [ ] **Ruang habis, akses ditolak, dan pemulihan.** Pakai VM atau volume uji berkuota dengan berkas contoh. Coba kehabisan ruang saat merekam, menyimpan edit, dan mengekspor. Coba tujuan ekspor yang tidak bisa ditulis. Pastikan error terlihat, rekaman yang sudah tersimpan dan MP4 lama masih dapat dibuka, serta pembatalan tutup editor mempertahankan edit. Bebaskan ruang, coba simpan atau ekspor lagi, lalu buka ulang. Untuk rekaman yang terputus, periksa bagian yang dapat dipulihkan. Gunakan drive sistem sehari-hari hanya untuk pengujian dengan ruang normal.
+- [ ] **Pemulihan setelah aplikasi terhenti.** Di VM atau profil uji, hentikan proses saat rekaman contoh berlangsung setelah beberapa bagian tersimpan. Buka kembali dan periksa pemulihan. Putar hasil sampai frame terakhir yang berhasil dipulihkan. Buat satu rekaman baru untuk memastikan sesi sebelumnya sudah dilepas.
+- [ ] **Periksa MP4 di luar editor.** Potong bagian dengan tanda visual dan bunyi yang mudah dikenali. Tambahkan volume dan posisi kamera yang mudah dibedakan, lalu ekspor. Putar di pemutar lain pada awal, batas potongan, dan akhir. Periksa gambar, audio, posisi kamera dan ketiadaan bagian yang dipotong. Uji pada perangkat/GPU yang memang akan didukung sebelum memperluas distribusi.
+- [ ] **Fitur lain yang akan dirilis.** Pada proyek contoh, uji jalur yang dipakai pengguna seperti rekam area/aplikasi tertentu, preset, musik, subtitle, dan mask. Untuk mask, periksa piksel di sekitar potongan dan ketika objek berpindah. Untuk subtitle cloud, gunakan audio uji dan jalankan Generate hanya jika memang ingin mengirim audio tersebut.
+
+## Jika frame pertama gagal
+
+Catat jam, jenis sumber, kondisi layar diam/bergerak, opsi perangkat dan teks error. Jika tersedia di folder percobaan, simpan `part-00000/capture-startup-diagnostic.json`, `recording-failure.json` dan `startup-failure.json`. Bandingkan satu percobaan gagal dengan satu yang berhasil pada konfigurasi yang sama. Diagnostik ini dapat diperiksa secara lokal.
+
+## Keputusan distribusi
+
+Tunda distribusi publik jika rekaman yang sudah tersimpan hilang, MP4 memuat bagian yang telah dipotong atau ditutup mask, atau timeout/selisih audio yang berulang pada konfigurasi yang akan didukung belum dipahami. Setelah uji manual, catat hasil per mesin, tanda tangani paket distribusi, periksa tanda tangannya, dan tuntaskan materi lisensi aplikasi serta komponen yang disertakan. [Status lisensi dan sumber](../THIRD_PARTY_NOTICES.md)

@@ -1,0 +1,36 @@
+[package]
+name = "screenrecord"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+default-run = "screenrecord"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+screenrecord-core = { path = "../crates/core" }
+screenrecord-capture = { path = "../crates/capture" }
+screenrecord-render = { path = "../crates/render" }
+screenrecord-transcribe = { path = "../crates/transcribe" }
+tauri = { version = "2", features = ["protocol-asset", "tray-icon"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-log = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-global-shortcut = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4"] }
+chrono = "0.4"
+log = "0.4"
+which = "8"
+tempfile = "3"
+sha2 = "0.10"
+dunce = "1"
+zeroize = "1"
+base64 = "0.22"
+windows-core = "0.62.2"
+windows = { version = "0.62.2", features = ["Win32_Foundation", "Win32_Storage_FileSystem", "Win32_System_JobObjects", "Win32_System_Threading", "Win32_Security", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging"] }
+
+[dev-dependencies]
+tempfile = "3"

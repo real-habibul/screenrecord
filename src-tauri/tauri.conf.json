@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Screenrecord",
+  "version": "0.7.4",
+  "identifier": "com.screenrecord.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [{ "label": "main", "title": "Screenrecord", "width": 1380, "height": 880, "minWidth": 900, "minHeight": 640, "backgroundColor": "#16181d" }],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' asset: http://asset.localhost data: blob:; media-src 'self' asset: http://asset.localhost blob:; style-src 'self' 'unsafe-inline'; connect-src ipc: http://ipc.localhost",
+      "assetProtocol": { "enable": true, "scope": { "allow": [
+        "$VIDEO/Screenrecord/**",
+        "$APPLOCALDATA/projects/**",
+        "$APPLOCALDATA/recording-tests/*/part-00000/screen.mp4",
+        "$APPLOCALDATA/recording-tests/*/part-00000/camera-source.mp4",
+        "$APPLOCALDATA/recording-tests/*/part-00000/microphone.wav",
+        "$APPLOCALDATA/recording-tests/*/part-00000/system.wav"
+      ], "requireLiteralLeadingDot": true } }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": ["icons/icon.ico", "icons/32x32.png", "icons/128x128.png"],
+    "category": "Video",
+    "shortDescription": "Local screen recording and editing for Windows",
+    "resources": {"resources/": "resources/", "../LICENSE": "LICENSE", "../THIRD_PARTY_NOTICES.md": "THIRD_PARTY_NOTICES.md", "../licenses/": "licenses/", "../public/audio-limiter.js": "licenses/audio-limiter.js", "../vendor/windows-capture/LICENCE": "licenses/windows-capture-MIT.txt"},
+    "windows": { "webviewInstallMode": { "type": "downloadBootstrapper" }, "nsis": { "installMode": "currentUser", "displayLanguageSelector": false, "languages": ["English"] } }
+  }
+}

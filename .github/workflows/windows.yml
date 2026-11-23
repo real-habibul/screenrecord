@@ -1,0 +1,53 @@
+name: Windows validation
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install Rust
+        run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
+      - name: Use stable Rust
+        run: rustup default stable
+      - name: Install frontend dependencies
+        run: npm ci
+      - name: Prepare pinned media engine
+        shell: pwsh
+        run: ./scripts/prepare-media.ps1
+      - name: Verify and build unsigned installer
+        shell: pwsh
+        run: ./scripts/verify.ps1 -BuildInstaller
+      - name: Inspect packaged runtime without installing
+        shell: pwsh
+        run: ./scripts/inspect-installer.ps1
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: Screenrecord-Windows-x64-unsigned
+          path: |
+            target/release/bundle/nsis/*.exe
+            target/release/bundle/nsis/*.sha256
+            artifacts/installer-evidence.json
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: verification-failures
+          path: |
+            test-results/
+            artifacts/ui/
+          if-no-files-found: ignore
+          retention-days: 7

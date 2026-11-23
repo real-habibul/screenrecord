@@ -1,0 +1,35 @@
+{
+  "samples": [
+    {"time":0,     "x":0.50,"y":0.50,"pressed":true, "buttons":2,"visible":false},
+    {"time":0.01,  "x":0.50,"y":0.50,"pressed":true, "buttons":2,"visible":true},
+    {"time":0.02,  "x":0.25,"y":0.75,"pressed":true, "buttons":3,"visible":true},
+    {"time":0.021, "x":0.27,"y":0.75,"pressed":true, "buttons":2,"visible":true},
+    {"time":0.024, "x":0.28,"y":0.74,"pressed":true, "buttons":3,"visible":true},
+    {"time":0.026, "x":0.40,"y":0.64,"pressed":true, "buttons":1,"visible":true},
+    {"time":0.03,  "x":0.80,"y":0.25,"pressed":true, "buttons":3,"visible":true},
+    {"time":0.08,  "x":0.65,"y":0.24,"pressed":false,           "visible":true},
+    {"time":0.10,  "x":0.65,"y":0.24,"pressed":true,            "visible":true},
+    {"time":0.11,  "x":0.50,"y":0.50,"pressed":true,            "visible":false},
+    {"time":0.12,  "x":0.65,"y":0.24,"pressed":true,            "visible":true},
+    {"time":0.14,  "x":0.50,"y":0.50,"pressed":false,           "visible":false},
+    {"time":0.16,  "x":0.60,"y":0.80,"pressed":false,           "visible":true},
+    {"time":0.20,  "x":0.35,"y":0.32,"pressed":true, "buttons":3,"visible":true},
+    {"time":0.30,  "x":0.70,"y":0.66,"pressed":true, "buttons":3,"visible":true},
+    {"time":0.31,  "x":0.71,"y":0.66,"pressed":false,           "visible":true},
+    {"time":0.70,  "x":0.62,"y":0.40,"pressed":true, "buttons":4,"visible":true},
+    {"time":1.05,  "x":0.50,"y":0.50,"pressed":true, "buttons":4,"visible":false},
+    {"time":1.08,  "x":0.62,"y":0.40,"pressed":true, "buttons":4,"visible":true},
+    {"time":1.09,  "x":0.61,"y":0.41,"pressed":false,           "visible":true},
+    {"time":1.20,  "x":0.61,"y":0.41,"pressed":true, "buttons":1,"visible":true},
+    {"time":1.20,  "x":0.50,"y":0.50,"pressed":false,           "visible":false}
+  ],
+  "clicks": [
+    {"time":0.02, "end":0.11,"x":0.25,"y":0.75,"button":"left"},
+    {"time":0.024,"end":0.11,"x":0.28,"y":0.74,"button":"left"},
+    {"time":0.03, "end":0.11,"x":0.80,"y":0.25,"button":"right"},
+    {"time":0.10, "end":0.11,"x":0.65,"y":0.24,"button":"generic"},
+    {"time":0.20, "end":0.60,"x":0.35,"y":0.32,"button":"left"},
+    {"time":0.20, "end":0.60,"x":0.35,"y":0.32,"button":"right"},
+    {"time":0.70, "end":1.05,"x":0.62,"y":0.40,"button":"generic"}
+  ]
+}

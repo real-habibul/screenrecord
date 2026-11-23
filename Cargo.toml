@@ -1,0 +1,17 @@
+[workspace]
+members = ["crates/core", "crates/capture", "crates/render", "crates/transcribe", "src-tauri"]
+exclude = ["vendor/windows-capture"]
+resolver = "2"
+
+[patch.crates-io]
+windows-capture = { path = "vendor/windows-capture" }
+
+[workspace.package]
+version = "0.7.4"
+edition = "2021"
+license = "MIT"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true

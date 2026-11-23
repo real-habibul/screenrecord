@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.ico binary
+*.png binary
+*.wav binary
+*.webp binary
+licenses/** -text
+vendor/windows-capture/LICENCE -text

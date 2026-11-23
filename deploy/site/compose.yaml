@@ -1,0 +1,49 @@
+name: screenrecord-site
+services:
+  web:
+    image: nginx@sha256:0e52bd054126cdc040b1276c0af347aeb02a41b9cfe305d6094767ac30e97949
+    restart: unless-stopped
+    read_only: true
+    user: "101:101"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    entrypoint: ["nginx", "-c", "/etc/nginx/screenrecord.conf", "-g", "daemon off;"]
+    volumes:
+      - ./nginx.conf:/etc/nginx/screenrecord.conf:ro
+      - ./www:/var/www/screenrecord:ro
+    tmpfs:
+      - /tmp:size=8m,noexec,nosuid
+    networks:
+      - proxy
+    mem_limit: 64m
+    pids_limit: 48
+    logging:
+      options:
+        max-size: "5m"
+        max-file: "2"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 4s
+      retries: 3
+      start_period: 5s
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: coolify
+      traefik.http.routers.screenrecord-site-https.rule: "Host(`screenrecord.88apps.dev`)"
+      traefik.http.routers.screenrecord-site-https.entrypoints: https
+      traefik.http.routers.screenrecord-site-https.tls.certresolver: letsencrypt
+      traefik.http.routers.screenrecord-site-https.service: screenrecord-site
+      traefik.http.services.screenrecord-site.loadbalancer.server.port: "8080"
+      traefik.http.routers.screenrecord-site-http.rule: "Host(`screenrecord.88apps.dev`)"
+      traefik.http.routers.screenrecord-site-http.entrypoints: http
+      traefik.http.routers.screenrecord-site-http.middlewares: screenrecord-site-redirect
+      traefik.http.routers.screenrecord-site-http.service: screenrecord-site
+      traefik.http.middlewares.screenrecord-site-redirect.redirectscheme.scheme: https
+      traefik.http.middlewares.screenrecord-site-redirect.redirectscheme.permanent: "true"
+networks:
+  proxy:
+    external: true
+    name: coolify

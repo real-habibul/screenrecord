@@ -1,0 +1,30 @@
+{
+  "region": {
+    "id": "reference", "start": 2, "end": 4, "x": 0.1, "y": 0.2,
+    "width": 0.2, "height": 0.1, "mode": "blur", "strength": 16,
+    "tracking": { "reviewed": false, "keyframes": [
+      {"time":2,"x":0.1,"y":0.2,"width":0.2,"height":0.1,"confidence":1,"kind":"manual"},
+      {"time":2.1,"x":0.15,"y":0.22,"width":0.2,"height":0.1,"confidence":0.98,"kind":"auto"},
+      {"time":2.2,"x":0.2,"y":0.3,"width":0.25,"height":0.1,"confidence":0.97,"kind":"auto"},
+      {"time":2.3,"x":0,"y":0,"width":1,"height":1,"confidence":0,"kind":"lost"},
+      {"time":2.5,"x":0.6,"y":0.5,"width":0.2,"height":0.2,"confidence":1,"kind":"manual"},
+      {"time":2.6,"x":0.65,"y":0.55,"width":0.2,"height":0.2,"confidence":0.99,"kind":"auto"},
+      {"time":3,"x":0.2,"y":0.2,"width":0.1,"height":0.1,"confidence":1,"kind":"manual"}
+    ] }
+  },
+  "cases": [
+    {"time":1.99,"x":0,"y":0,"width":1,"height":1,"lost":true},
+    {"time":2,"x":0.1,"y":0.2,"width":0.25,"height":0.12,"lost":false},
+    {"time":2.099999999,"x":0.1,"y":0.2,"width":0.25,"height":0.12,"lost":false},
+    {"time":2.1,"x":0.15,"y":0.22,"width":0.3,"height":0.18,"lost":false},
+    {"time":2.199999999,"x":0.15,"y":0.22,"width":0.3,"height":0.18,"lost":false},
+    {"time":2.2,"x":0,"y":0,"width":1,"height":1,"lost":true},
+    {"time":2.3,"x":0,"y":0,"width":1,"height":1,"lost":true},
+    {"time":2.499999999,"x":0,"y":0,"width":1,"height":1,"lost":true},
+    {"time":2.5,"x":0.6,"y":0.5,"width":0.25,"height":0.25,"lost":false},
+    {"time":2.6,"x":0.65,"y":0.55,"width":0.2,"height":0.2,"lost":false},
+    {"time":2.999999999,"x":0.65,"y":0.55,"width":0.2,"height":0.2,"lost":false},
+    {"time":3,"x":0.2,"y":0.2,"width":0.1,"height":0.1,"lost":false},
+    {"time":3.999,"x":0.2,"y":0.2,"width":0.1,"height":0.1,"lost":false}
+  ]
+}

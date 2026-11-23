@@ -1,0 +1,10 @@
+mod app;
+mod device_catalog;
+mod editor_media;
+mod process_job;
+mod project_delete;
+mod recording_failure;
+mod recording_test_store;
+mod recycle_sink;
+mod startup_failure;
+pub use app::run;

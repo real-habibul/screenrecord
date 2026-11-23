@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "provenance": "Cover rectangles and blur scales calculated independently from integer final viewports. No preview or renderer helper was used to generate expected values.",
+  "maxScratchEdge": 960,
+  "cases": [
+    {
+      "id": "landscape-viewport-covers-portrait-canvas",
+      "viewport": { "x": 0, "y": 0, "width": 1920, "height": 1080 },
+      "canvas": { "width": 1080, "height": 1920 },
+      "strength": 24,
+      "expected": { "crop": { "x": 656, "y": 0, "width": 607, "height": 1080 }, "scratch": { "width": 540, "height": 960 }, "sigmaX": 12, "sigmaY": 12 }
+    },
+    {
+      "id": "portrait-viewport-covers-landscape-canvas",
+      "viewport": { "x": 0, "y": 0, "width": 1080, "height": 1920 },
+      "canvas": { "width": 1920, "height": 1080 },
+      "strength": 24,
+      "expected": { "crop": { "x": 0, "y": 656, "width": 1080, "height": 607 }, "scratch": { "width": 960, "height": 540 }, "sigmaX": 12, "sigmaY": 12 }
+    },
+    {
+      "id": "square-high-resolution-keeps-reference-blur-scale",
+      "viewport": { "x": 10, "y": 20, "width": 900, "height": 900 },
+      "canvas": { "width": 2160, "height": 2160 },
+      "strength": 64,
+      "expected": { "crop": { "x": 10, "y": 20, "width": 900, "height": 900 }, "scratch": { "width": 960, "height": 960 }, "sigmaX": 56.888888888888886, "sigmaY": 56.888888888888886 }
+    },
+    {
+      "id": "shifted-final-viewport-cover-remains-inside-viewport",
+      "viewport": { "x": 103, "y": 41, "width": 321, "height": 181 },
+      "canvas": { "width": 1080, "height": 1920 },
+      "strength": 24,
+      "expected": { "crop": { "x": 213, "y": 41, "width": 101, "height": 181 }, "scratch": { "width": 540, "height": 960 }, "sigmaX": 12, "sigmaY": 12 }
+    },
+    {
+      "id": "odd-cropped-extents-floor-cover-without-rounding-outside",
+      "viewport": { "x": 239, "y": 134, "width": 1438, "height": 808 },
+      "canvas": { "width": 1920, "height": 1080 },
+      "strength": 4,
+      "expected": { "crop": { "x": 240, "y": 134, "width": 1436, "height": 808 }, "scratch": { "width": 960, "height": 540 }, "sigmaX": 2, "sigmaY": 2 }
+    },
+    {
+      "id": "one-pixel-width-retains-one-owned-pixel",
+      "viewport": { "x": 9, "y": 49, "width": 1, "height": 2 },
+      "canvas": { "width": 1080, "height": 1920 },
+      "strength": 4,
+      "expected": { "crop": { "x": 9, "y": 49, "width": 1, "height": 1 }, "scratch": { "width": 540, "height": 960 }, "sigmaX": 2, "sigmaY": 2 }
+    },
+    {
+      "id": "thin-viewport-never-allocates-oversized-cover-image",
+      "viewport": { "x": 100, "y": 1074, "width": 1820, "height": 6 },
+      "canvas": { "width": 1080, "height": 1920 },
+      "strength": 64,
+      "expected": { "crop": { "x": 1008, "y": 1074, "width": 3, "height": 6 }, "scratch": { "width": 540, "height": 960 }, "sigmaX": 32, "sigmaY": 32 }
+    },
+    {
+      "id": "maximum-canvas-edge-uses-rounded-bounded-scratch",
+      "viewport": { "x": 13, "y": 7, "width": 8192, "height": 1 },
+      "canvas": { "width": 8192, "height": 1080 },
+      "strength": 64,
+      "expected": { "crop": { "x": 4105, "y": 7, "width": 7, "height": 1 }, "scratch": { "width": 960, "height": 127 }, "sigmaX": 7.5, "sigmaY": 7.525925925925926 }
+    }
+  ]
+}
