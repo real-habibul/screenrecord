@@ -1,0 +1,50 @@
+{
+  "anes-0.1.6/LICENSE-APACHE": {
+    "url": "https://raw.githubusercontent.com/zrzka/anes-rs/378ac7461ecac29fde9e10df7b08359d1315a9ad/LICENSE-APACHE",
+    "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+  },
+  "anes-0.1.6/LICENSE-MIT": {
+    "url": "https://raw.githubusercontent.com/zrzka/anes-rs/378ac7461ecac29fde9e10df7b08359d1315a9ad/LICENSE-MIT",
+    "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+  },
+  "difflib-0.4.0/LICENSE": {
+    "url": "https://raw.githubusercontent.com/DimaKudosh/difflib/6fd59b0c08/LICENSE",
+    "sha256": "6725d1437fc6c77301f2ff0e7d52914cf4f9509213e1078dc77d9356dbe6eac5"
+  },
+  "profiling-1.0.16/LICENSE-APACHE": {
+    "url": "https://raw.githubusercontent.com/aclysma/profiling/0ba524064aae5b4972e6be3424a2acb316f93ba3/LICENSE-APACHE",
+    "sha256": "10d30a673cd5e9349bdc02aeb48f14b3386d27d0da32df8f0a555d4aa16aa551"
+  },
+  "profiling-1.0.16/LICENSE-MIT": {
+    "url": "https://raw.githubusercontent.com/aclysma/profiling/0ba524064aae5b4972e6be3424a2acb316f93ba3/LICENSE-MIT",
+    "sha256": "c8167fdeeed46d3f244d3f85c5bf998ce889343691c32be2c61a8bc4b5c08333"
+  },
+  "profiling-procmacros-1.0.16/LICENSE-APACHE": {
+    "url": "https://raw.githubusercontent.com/aclysma/profiling/0ba524064aae5b4972e6be3424a2acb316f93ba3/LICENSE-APACHE",
+    "sha256": "10d30a673cd5e9349bdc02aeb48f14b3386d27d0da32df8f0a555d4aa16aa551"
+  },
+  "profiling-procmacros-1.0.16/LICENSE-MIT": {
+    "url": "https://raw.githubusercontent.com/aclysma/profiling/0ba524064aae5b4972e6be3424a2acb316f93ba3/LICENSE-MIT",
+    "sha256": "c8167fdeeed46d3f244d3f85c5bf998ce889343691c32be2c61a8bc4b5c08333"
+  },
+  "simd_helpers-0.1.0/LICENSE": {
+    "url": "https://raw.githubusercontent.com/lu-zero/simd_helpers/82040194cd/LICENSE",
+    "sha256": "d69f24ad84ec2ade64c0b68bdb31b41170e997b158370342056918329cc9af1e"
+  },
+  "valuable-0.1.1/LICENSE": {
+    "url": "https://raw.githubusercontent.com/tokio-rs/valuable/9efc29b6e58cef28f6566a47aa7e142a55fead77/LICENSE",
+    "sha256": "ed60d479b8fd1f64e9cbc3de449a16a53ac1b3d1b6aeb9bf9d190a8e93061b44"
+  },
+  "wit-bindgen-rt-0.39.0/LICENSE-APACHE": {
+    "url": "https://raw.githubusercontent.com/bytecodealliance/wit-bindgen/f2393e6e98fa5f9236cac580db8a3fc9de6a4b70/LICENSE-APACHE",
+    "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+  },
+  "wit-bindgen-rt-0.39.0/LICENSE-Apache-2.0_WITH_LLVM-exception": {
+    "url": "https://raw.githubusercontent.com/bytecodealliance/wit-bindgen/f2393e6e98fa5f9236cac580db8a3fc9de6a4b70/LICENSE-Apache-2.0_WITH_LLVM-exception",
+    "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
+  },
+  "wit-bindgen-rt-0.39.0/LICENSE-MIT": {
+    "url": "https://raw.githubusercontent.com/bytecodealliance/wit-bindgen/f2393e6e98fa5f9236cac580db8a3fc9de6a4b70/LICENSE-MIT",
+    "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+  }
+}

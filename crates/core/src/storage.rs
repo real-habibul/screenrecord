@@ -854,8 +854,8 @@ mod tests {
             visible: true,
         });
         save_project_atomic(&project).unwrap();
-        let directory = Path::new(&project.directory);
-        let mut descriptor = read_document(directory, &project.id).unwrap().1.unwrap();
+        let directory = project_dir(root.path(), &project.id).unwrap();
+        let mut descriptor = read_document(&directory, &project.id).unwrap().1.unwrap();
         let path = directory.join(&descriptor.name);
         let mut record = fs::read(&path).unwrap();
         assert_eq!(record[40], 31);
@@ -868,7 +868,7 @@ mod tests {
             record[40] = invalid_flags;
             descriptor.sha256 = format!("{:x}", Sha256::digest(&record));
             fs::write(&path, &record).unwrap();
-            assert!(read_cursor(directory, &descriptor)
+            assert!(read_cursor(&directory, &descriptor)
                 .unwrap_err()
                 .contains("flags"));
         }

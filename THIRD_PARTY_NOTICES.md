@@ -13,7 +13,7 @@ Screenrecord 0.7.4 menggunakan FFmpeg dan FFprobe untuk Windows x64. Build `n8.1
 | Resep build | [FFmpeg-Builds c9fe5114](https://github.com/FFmpeg-Builds/FFmpeg-Builds/tree/c9fe5114060e507409f7ee07edfd82efaf25d767) |
 | Proses build upstream | [GitHub Actions run 42813262313](https://github.com/FFmpeg-Builds/FFmpeg-Builds/actions/runs/42813262313) |
 
-[scripts/prepare-media.ps1](scripts/prepare-media.ps1) memeriksa SHA-256 sebelum menyalin runtime. Konfigurasi biner dapat diperiksa dengan `resources/ffmpeg.exe -buildconf` dan lisensinya dengan `resources/ffmpeg.exe -L`. DLL ini juga berisi kode pustaka eksternal, termasuk libass, libopenh264, libopus, dan libvpx. Materi sumber yang sesuai dengan build serta inventaris lisensi untuk unduhan installer sedang disiapkan.
+[scripts/prepare-media.ps1](scripts/prepare-media.ps1) memeriksa SHA-256 sebelum menyalin runtime. Konfigurasi biner dapat diperiksa dengan `resources/ffmpeg.exe -buildconf` dan lisensinya dengan `resources/ffmpeg.exe -L`. DLL ini juga berisi kode pustaka eksternal, termasuk libass, libopenh264, libopus, dan libvpx. Unduh kedua arsip sumber dari rilis installer. Arsip pertama berisi sumber FFmpeg, resep, sumber aplikasi pihak ketiga dan materi rav1e. Arsip kedua berisi 84 masukan build untuk target Windows x64. Rincian versi serta petunjuk kompilasi tersedia dalam [panduan sumber](licenses/THIRD-PARTY-SOURCES.md).
 
 ## Limiter audio
 
@@ -21,7 +21,7 @@ Modul AudioWorklet mengadaptasi filter `af_alimiter.c`. Hak cipta Krzysztof Folt
 
 ## Aplikasi Windows dan editor
 
-Editor menggunakan Vue dan Tauri. Versi dependensi JavaScript dan Rust tercatat dalam [package-lock.json](package-lock.json) dan [Cargo.lock](Cargo.lock). Pohon sumber memuat varian Windows Capture yang digunakan aplikasi beserta [lisensi MIT upstream](vendor/windows-capture/LICENCE). Installer menggunakan NSIS dan memakai bootstrapper WebView2 Evergreen dari Microsoft bila runtime belum tersedia. [Ketentuan WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
+Editor menggunakan Vue dan Tauri. Installer menyertakan teks lisensi Rust, JavaScript, SDK WebView2 dan NSIS dalam `licenses/runtime-notices.zip`. Atribusi pustaka build media terdapat dalam `licenses/ffmpeg-notices.zip`. [Unduhan rilis](https://github.com/real-habibul/screenrecord/releases). Versi dependensi JavaScript dan Rust tercatat dalam [package-lock.json](package-lock.json) dan [Cargo.lock](Cargo.lock). Pohon sumber memuat varian Windows Capture yang digunakan aplikasi beserta [lisensi MIT upstream](vendor/windows-capture/LICENCE). Installer menggunakan NSIS dan memakai bootstrapper WebView2 Evergreen dari Microsoft bila runtime belum tersedia. [Ketentuan WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
 
 ## Transkripsi opsional
 

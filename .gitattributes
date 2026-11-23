@@ -3,5 +3,5 @@
 *.png binary
 *.wav binary
 *.webp binary
-licenses/** -text
+licenses/** -text whitespace=trailing-space,space-before-tab,cr-at-eol
 vendor/windows-capture/LICENCE -text
